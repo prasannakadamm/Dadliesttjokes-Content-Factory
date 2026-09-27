@@ -14,7 +14,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Architecture Documentation:** Authored comprehensive architectural guidelines and diagrams.
   - `docs/architecture/SYSTEM_ARCHITECTURE.md`: High-level system topology and core subsystems.
   - `docs/architecture/COMPONENT_ARCHITECTURE.md`: Internal structures of API, Worker, and Web clients.
-  - `docs/architecture/DATA_ARCHITECTURE.md`: PostgreSQL relational schema (ERD) and S3 object storage lifecycle.
+  - `docs/architecture/DATA_ARCHITECTURE.md`: PostgreSQL relational schema (ERD) and Cloudflare R2 object storage lifecycle.
   - `docs/architecture/ASYNC_PROCESSING.md`: Worker queue topology and video processing state machine.
   - `docs/architecture/SECURITY_ARCHITECTURE.md`: RBAC, secret management, and network boundaries.
   - `docs/architecture/INTEGRATION_ARCHITECTURE.md`: Adapter patterns for Gemini and OpenShorts.

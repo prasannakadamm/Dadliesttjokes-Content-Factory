@@ -123,18 +123,18 @@ This document serves as the master record for Architecture Decision Records (ADR
 ### OpenShorts
 
 - **Integration Model**: Headless/programmatic video composition.
-- **Repository Facts**: Specific licensing and enterprise pricing could not be confirmed authoritatively; this detail is explicitly deferred until evaluation in Phase 05.
-- **Constraints**: Authoritative limits could not be confirmed; deferred.
+- **Repository Facts**: OpenShorts is an open-source (MIT licensed) AI-powered video automation platform for turning long-form videos into vertical 9:16 shorts.
+- **Constraints**: Can be self-hosted via Docker (free, no watermarks, requires own API keys/hardware) or used via the cloud-hosted service (which has usage limits and paid subscription tiers).
 - **Architectural Fit**: Evaluated as the primary intended target for automated vertical reframing, replacing manual FFmpeg scripts.
-- **Official Source URL**: (Authoritative URL deferred pending Phase 05 integration vetting)
+- **Official Source URL**: https://github.com/mutonby/openshorts and https://www.openshorts.app/
 - **Date Checked**: 2026-09-27
 
 ### Google Gemini
 
-- **Multimodal Capabilities**: Native support for video and audio comprehension directly within the context window.
-- **Video Capability**: Capable of processing long-context video inputs (e.g., Gemini 1.5 Pro) to identify comedic beats and generate synchronized transcripts.
-- **Applicable Limits**: Quotas depend on tier; long video processing consumes significant token context up to 2M tokens.
-- **Pricing Considerations**: Priced per token; video frame extraction is billed based on length and resolution.
+- **Multimodal Capabilities**: Native support for video and audio comprehension directly within the context window via the Gemini API.
+- **Video Capability**: Capable of processing video inputs to identify comedic beats and generate synchronized transcripts. Video inputs are converted into tokens.
+- **Applicable Limits**: Quotas and limits depend on the model (e.g., current Gemini Pro models handle up to 2M tokens context window). File API recommended for larger files (over 100MB).
+- **Pricing Considerations**: Token-based billing for input/output. Free tier available in Google AI Studio subject to rate limits.
 - **Architectural Fit**: The most capable AI provider for direct long-form video ingestion and humor extraction.
 - **Official Source URL**: https://ai.google.dev/
 - **Date Checked**: 2026-09-27
