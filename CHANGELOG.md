@@ -7,7 +7,28 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
-## [0.0.0] - Phase 00 Initialization
+## [0.1.0] - Phase 01 Architecture & Planning
+
+### Added
+
+- **Architecture Documentation:** Authored comprehensive architectural guidelines and diagrams.
+  - `docs/architecture/SYSTEM_ARCHITECTURE.md`: High-level system topology and core subsystems.
+  - `docs/architecture/COMPONENT_ARCHITECTURE.md`: Internal structures of API, Worker, and Web clients.
+  - `docs/architecture/DATA_ARCHITECTURE.md`: PostgreSQL relational schema (ERD) and S3 object storage lifecycle.
+  - `docs/architecture/ASYNC_PROCESSING.md`: Worker queue topology and video processing state machine.
+  - `docs/architecture/SECURITY_ARCHITECTURE.md`: RBAC, secret management, and network boundaries.
+  - `docs/architecture/INTEGRATION_ARCHITECTURE.md`: Adapter patterns for Gemini and OpenShorts.
+  - `docs/architecture/DEPLOYMENT_ARCHITECTURE.md`: AWS/Cloud infrastructure topology and CI/CD pipelines.
+  - `docs/architecture/ARCHITECTURE_DECISIONS.md`: Log of Architecture Decision Records (ADRs).
+  - `docs/architecture/TECHNOLOGY_SELECTION.md`: Finalized tech stack matrix (Node.js, PostgreSQL, Fastify, BullMQ, React).
+  - `docs/architecture/PHASE_DEPENDENCIES.md`: Component traceability to the canonical 11-phase roadmap.
+
+### Changed
+
+- **Phase Status:** Marked Phase 01 as COMPLETED & VERIFIED.
+- **Roadmap:** Advanced the active phase to Phase 02 (Development Foundation).
+
+---## [0.0.0] - Phase 00 Initialization
 
 ### Added
 
