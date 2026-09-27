@@ -68,3 +68,73 @@ This document serves as the master record for Architecture Decision Records (ADR
 - **Context**: Dashboard needs SEO, rapid routing, and potential SSR.
 - **Decision**: Next.js (App Router).
 - **Consequences**: Industry standard, unifies frontend and BFF (Backend-for-Frontend) if needed, though can be opinionated.
+
+---
+
+## 3. Provider Decision Evidence (Phase 01)
+
+### Cloudflare R2
+
+- **Storage Model**: S3-compatible object storage.
+- **Operation Model**: Global edge distribution.
+- **Egress/Pricing**: Zero egress fees, crucial for media-heavy workloads transferring video files frequently.
+- **Constraints**: Slight variance in latency compared to region-locked AWS S3 natively.
+- **Architectural Fit**: Perfect for large-scale media ingest and distribution without prohibitive bandwidth costs.
+- **Official Source URL**: https://developers.cloudflare.com/r2/
+- **Date Checked**: 2026-09-27
+
+### Fastify
+
+- **Framework Characteristics**: High-performance Node.js web framework.
+- **JSON Schema Validation**: Native JSON Schema support for validation and serialization, greatly increasing throughput.
+- **Architectural Fit**: Ideal for the API Gateway and worker task dispatching requiring high speed and schema enforcement.
+- **Limitations**: Slightly smaller middleware ecosystem compared to Express.
+- **Official Source URL**: https://fastify.dev/
+- **Date Checked**: 2026-09-27
+
+### Drizzle ORM
+
+- **Type-safe SQL**: Offers type-safe SQL-like queries with TypeScript.
+- **Runtime Characteristics**: Edge-compatible, no heavy Rust binaries (unlike Prisma), fast cold starts.
+- **Architectural Fit**: Fits perfectly into a scalable backend connecting to PostgreSQL.
+- **Constraints**: Requires more SQL knowledge for complex relational queries compared to abstract ORMs.
+- **Official Source URL**: https://orm.drizzle.team/
+- **Date Checked**: 2026-09-27
+
+### Next.js App Router
+
+- **Architecture**: React-based framework utilizing the modern App Router (Server Components).
+- **Dashboard Characteristics**: Built-in API routes, Server-Side Rendering (SSR) capability, file-system based routing.
+- **Architectural Fit**: The standard choice for robust, SEO-friendly, and highly interactive web dashboards.
+- **Constraints**: Can be highly opinionated regarding data fetching and component boundaries (Client vs Server).
+- **Official Source URL**: https://nextjs.org/docs/app
+- **Date Checked**: 2026-09-27
+
+### PostHog
+
+- **Capabilities**: Open-source product operating system (product analytics, session recording, feature flags).
+- **Event-based**: Native event-driven analytics architecture suitable for tracking video rendering milestones.
+- **Pricing Model**: Generous free tier and transparent event-based pricing.
+- **Architectural Fit**: Unifies monitoring of frontend user interaction and backend video processing events.
+- **Constraints**: Self-hosting can be complex; managed service requires data egress.
+- **Official Source URL**: https://posthog.com/
+- **Date Checked**: 2026-09-27
+
+### OpenShorts
+
+- **Integration Model**: Headless/programmatic video composition.
+- **Repository Facts**: Specific licensing and enterprise pricing could not be confirmed authoritatively; this detail is explicitly deferred until evaluation in Phase 05.
+- **Constraints**: Authoritative limits could not be confirmed; deferred.
+- **Architectural Fit**: Evaluated as the primary intended target for automated vertical reframing, replacing manual FFmpeg scripts.
+- **Official Source URL**: (Authoritative URL deferred pending Phase 05 integration vetting)
+- **Date Checked**: 2026-09-27
+
+### Google Gemini
+
+- **Multimodal Capabilities**: Native support for video and audio comprehension directly within the context window.
+- **Video Capability**: Capable of processing long-context video inputs (e.g., Gemini 1.5 Pro) to identify comedic beats and generate synchronized transcripts.
+- **Applicable Limits**: Quotas depend on tier; long video processing consumes significant token context up to 2M tokens.
+- **Pricing Considerations**: Priced per token; video frame extraction is billed based on length and resolution.
+- **Architectural Fit**: The most capable AI provider for direct long-form video ingestion and humor extraction.
+- **Official Source URL**: https://ai.google.dev/
+- **Date Checked**: 2026-09-27

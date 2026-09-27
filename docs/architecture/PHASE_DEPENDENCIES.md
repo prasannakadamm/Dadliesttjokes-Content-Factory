@@ -28,7 +28,7 @@ This document maps architectural components to the canonical 11-phase developmen
 
 ### Phase 04: Web Dashboard
 
-- **Artifacts**: React frontend, PWA configuration, client-side state, API integration.
+- **Artifacts**: Next.js App Router frontend, PWA configuration, client-side state, API integration.
 - **Dependencies**: Requires Phase 03 (Auth/Database) for user sessions and data retrieval.
 
 ### Phase 05: OpenShorts Integration
@@ -53,7 +53,7 @@ This document maps architectural components to the canonical 11-phase developmen
 
 ### Phase 09: Analytics & Monitoring
 
-- **Artifacts**: Performance ingestion webhooks, system health checks, Grafana/Dashboard metrics.
+- **Artifacts**: Performance ingestion webhooks, system health checks, PostHog event analytics.
 - **Dependencies**: Requires Phase 08 (Publishing) to generate external metrics.
 
 ### Phase 10: Production Hardening

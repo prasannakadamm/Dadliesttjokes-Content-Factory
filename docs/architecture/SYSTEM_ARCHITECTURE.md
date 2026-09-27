@@ -9,11 +9,11 @@ The Dadliesttjokes Content Factory is a cloud-native, event-driven platform desi
 ```mermaid
 flowchart TD
     subgraph Client Layer
-        Web["Creator Dashboard\n(React/Next.js/PWA)"]
+        Web["Creator Dashboard\n(Next.js App Router / PWA)"]
     end
 
     subgraph API Gateway & Orchestration
-        API["API Gateway / Backend\n(Fastify/NestJS/Express)"]
+        API["API Gateway / Backend\n(Fastify)"]
     end
 
     subgraph Data & Persistence

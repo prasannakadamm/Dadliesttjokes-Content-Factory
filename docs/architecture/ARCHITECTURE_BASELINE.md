@@ -65,25 +65,25 @@ flowchart TD
 
 - **Baseline:** Mobile-first responsive web / Progressive Web App (PWA) dashboard.
 - **Role:** Facilitate media upload, review generated clips, adjust punchline tags, and trigger publication approvals from desktop or mobile devices.
-- **Phase 01 Validation Goal:** Select optimal framework (e.g., Next.js vs. Vite+React), assess SSR vs. SPA tradeoffs, and establish design system requirements.
+- **Phase 01 Validation Result:** Selected Next.js App Router for frontend framework and routing.
 
 ### 2.2 Backend (Target: Phase 02 — Development Foundation)
 
 - **Baseline:** Modular cloud API gateway.
 - **Role:** Handle authentication, route ingestion requests, manage relational state, and dispatch asynchronous tasks.
-- **Phase 01 Validation Goal:** Validate framework (Fastify / Express / NestJS), establish API protocol (REST vs. GraphQL / tRPC), and define modularity patterns.
+- **Phase 01 Validation Result:** Selected Fastify for the API framework and established REST API protocols.
 
 ### 2.3 Database (Target: Phase 03 — Database & Authentication)
 
 - **Baseline:** PostgreSQL.
 - **Role:** Structured relational data storage for user accounts, video metadata, processing job statuses, publication schedules, and analytics time-series.
-- **Phase 01 Validation Goal:** Evaluate ORM/query builder options (Prisma, Drizzle, Kysely), connection pooling, and multi-tenant schema isolation.
+- **Phase 01 Validation Result:** Selected Drizzle ORM for type-safe database access and connection pooling.
 
 ### 2.4 Background Processing
 
 - **Baseline:** Distributed queue + worker architecture.
 - **Role:** Decouple time-consuming video rendering, audio extraction, and AI processing from synchronous HTTP request cycles.
-- **Phase 01 Validation Goal:** Evaluate queue backends (Redis + BullMQ vs. Cloud-native queues such as SQS/Cloud Tasks), worker concurrency, and retry semantics.
+- **Phase 01 Validation Result:** Selected Redis + BullMQ for task queues and async processing.
 
 ### 2.5 Storage
 
@@ -119,4 +119,4 @@ flowchart TD
 
 - **Baseline:** Platform analytics ingestion + project metrics + automated health checks & monitoring.
 - **Role:** Ingest video performance metrics (views, completion rate, likes, shares), pipeline metrics (processing duration, cost per video), and operational health monitoring.
-- **Phase 01 Validation Goal:** Design ingestion schedules, aggregation schemas, and select observability stack (OpenTelemetry, Prometheus/Grafana, or cloud-managed observability).
+- **Phase 01 Validation Result:** Selected PostHog for event-driven analytics, system health monitoring, and aggregation.

@@ -30,7 +30,7 @@ No task or phase moves forward without adhering to the four-stage cycle:
 ## 3. Dependency & Tooling Discipline
 
 - **No Unnecessary Dependencies:** Every dependency must solve an explicit problem that cannot be solved simply and cleanly with standard libraries or existing tools.
-- **No Framework Sprawl:** Application frameworks (React, Next.js, Express, NestJS, Prisma, etc.) are strictly prohibited until the designated architecture and implementation phase.
+- **No Framework Sprawl:** Application frameworks (Next.js, Fastify, Drizzle, etc.) are strictly prohibited until the designated architecture and implementation phase.
 - **Pin Package Managers:** Package manager versions must be explicitly pinned in `package.json` (`packageManager` field).
 - **No Duplicate Tooling:** Do not install multiple tools that perform overlapping responsibilities (e.g., mixing ESLint formatters with conflicting Prettier rules).
 

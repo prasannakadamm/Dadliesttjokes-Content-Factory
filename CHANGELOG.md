@@ -18,9 +18,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - `docs/architecture/ASYNC_PROCESSING.md`: Worker queue topology and video processing state machine.
   - `docs/architecture/SECURITY_ARCHITECTURE.md`: RBAC, secret management, and network boundaries.
   - `docs/architecture/INTEGRATION_ARCHITECTURE.md`: Adapter patterns for Gemini and OpenShorts.
-  - `docs/architecture/DEPLOYMENT_ARCHITECTURE.md`: AWS/Cloud infrastructure topology and CI/CD pipelines.
+  - `docs/architecture/DEPLOYMENT_ARCHITECTURE.md`: Cloud infrastructure topology and CI/CD pipelines.
   - `docs/architecture/ARCHITECTURE_DECISIONS.md`: Log of Architecture Decision Records (ADRs).
-  - `docs/architecture/TECHNOLOGY_SELECTION.md`: Finalized tech stack matrix (Node.js, PostgreSQL, Fastify, BullMQ, React).
+  - `docs/architecture/TECHNOLOGY_SELECTION.md`: Finalized tech stack matrix (Node.js, PostgreSQL, Fastify, BullMQ, Next.js).
   - `docs/architecture/PHASE_DEPENDENCIES.md`: Component traceability to the canonical 11-phase roadmap.
 
 ### Changed

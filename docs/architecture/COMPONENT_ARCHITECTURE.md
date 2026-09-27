@@ -67,7 +67,7 @@ flowchart TD
 ```mermaid
 flowchart TD
     subgraph Web Dashboard
-        UI["UI Components (React)"]
+        UI["UI Components (Next.js App Router)"]
         State["Client State Management"]
         APIClient["API Client (Axios/Fetch)"]
         WSClient["WebSocket Client (Real-time)"]

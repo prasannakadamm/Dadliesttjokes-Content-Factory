@@ -53,7 +53,7 @@ erDiagram
 
 ## 3. Object Storage Lifecycle (Target: Phase 03/05)
 
-Media is stored in an S3-compatible service (AWS S3, Cloudflare R2, MinIO).
+Media is stored in Cloudflare R2.
 
 ### 3.1 Bucket Structure
 
