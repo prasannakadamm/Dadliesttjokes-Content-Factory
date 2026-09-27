@@ -38,7 +38,7 @@ The primary business and technical objectives are:
 
 - **NO Business Logic:** No video processing, transcription, or publishing features are created in Phase 00.
 - **NO Third-Party SDK Integrations:** No Gemini API or OpenShorts integrations in Phase 00.
-- **NO Live Databases or Schemas:** No PostgreSQL, Redis, or Prisma/Drizzle setups in Phase 00.
+- **NO Live Databases or Schemas:** No PostgreSQL, Redis, or Drizzle setups in Phase 00.
 - **NO UI Frameworks:** No Next.js or frontend styling code in Phase 00.
 - **NO Mock or Fake Implementations:** No fake APIs or mock pipelines masquerading as working software.
 - **NO Premature Architecture Commits:** Architecture choices will be formally vetted in Phase 01.
