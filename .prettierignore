@@ -1,0 +1,10 @@
+node_modules
+pnpm-lock.yaml
+dist
+build
+.next
+.turbo
+.antigravity
+media
+downloads
+temp_media

@@ -1,0 +1,78 @@
+# Dependencies
+node_modules/
+.pnpm-store/
+
+# Environment and Secrets
+.env
+.env.local
+.env.*.local
+*.env
+!*.env.example
+*.pem
+*.key
+*.cert
+*.pfx
+*.pkcs12
+id_rsa
+id_ed25519
+*.token
+
+# Build and Compilation Artifacts
+dist/
+build/
+out/
+.next/
+*.tsbuildinfo
+
+# Caches
+.cache/
+.turbo/
+.npm/
+.eslintcache
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# OS Artifacts
+Thumbs.db
+Desktop.ini
+.DS_Store
+ehthumbs.db
+ehthumbs_vista.db
+
+# IDE & Editor Artifacts (allowing project-scoped .vscode configuration)
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+*.bak
+
+# Media & Heavy Processing Outputs
+media/
+downloads/
+temp_media/
+*.mp4
+*.mov
+*.avi
+*.mkv
+*.webm
+*.wav
+*.mp3
+
+# Temporary & Scratch Files
+tmp/
+temp/
+*.tmp
+*.temp
+
+# Local Databases
+*.sqlite
+*.sqlite3
+*.db

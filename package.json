@@ -1,0 +1,17 @@
+{
+  "name": "dadliesttjokes-content-factory",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Cloud-based AI content automation platform for Dadliesttjokes social-media brand",
+  "packageManager": "pnpm@12.6.0",
+  "scripts": {
+    "format:check": "prettier --check .",
+    "format:write": "prettier --write ."
+  },
+  "devDependencies": {
+    "prettier": "^3.5.3"
+  },
+  "engines": {
+    "node": ">=20.0.0"
+  }
+}
