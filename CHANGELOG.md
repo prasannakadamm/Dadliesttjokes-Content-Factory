@@ -40,6 +40,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - `.prettierrc.json` & `.prettierignore`: Code and documentation formatting standards.
   - `.vscode/settings.json` & `.vscode/extensions.json`: Local workspace formatting configuration and extension recommendations.
 - **Dependencies:**
-  - `prettier` (`^3.5.3`): Root devDependency for deterministic file formatting verification.
+  - `prettier` (`3.9.9`): Root devDependency for deterministic file formatting verification.
 - **Git Repository:**
   - Initialized Git repository on branch `main`.

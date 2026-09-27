@@ -167,7 +167,7 @@ importers:
   .:
     devDependencies:
       prettier:
-        specifier: ^3.5.3
+        specifier: 3.9.9
         version: 3.9.9
 
 packages:

@@ -44,15 +44,17 @@ $$\textbf{ONE STEP} \longrightarrow \textbf{VERIFY} \longrightarrow \textbf{LOCK
 
 ## 3. High-Level Future Capabilities
 
-| Capability Domain       | Future Responsibility                                                 | Target Implementation Phase |
-| :---------------------- | :-------------------------------------------------------------------- | :-------------------------- |
-| **Workspace & API**     | Central orchestration, REST/GraphQL endpoints, task dispatching       | Phase 02+                   |
-| **Web Dashboard**       | Mobile-first responsive web/PWA dashboard for approvals and metrics   | Phase 05+                   |
-| **Media Engine**        | Video ingestion, slicing, rendering, vertical formatting (OpenShorts) | Phase 04+                   |
-| **AI Intelligence**     | Punchline detection, captioning, metadata synthesis (Gemini)          | Phase 04+                   |
-| **Quality Control**     | Automated QC validation layer (audio, video, duration, compliance)    | Phase 04+                   |
-| **Publishing Adapters** | Modular social platform adapters (YouTube, Instagram, TikTok)         | Phase 06+                   |
-| **Analytics Engine**    | Ingestion of reach, retention, and engagement statistics              | Phase 07+                   |
+| Capability Domain          | Future Responsibility                                                | Target Implementation Phase |
+| :------------------------- | :------------------------------------------------------------------- | :-------------------------- |
+| **Development Foundation** | Core monorepo setup, shared packages, base configuration             | Phase 02                    |
+| **Database & Auth**        | Persistent storage schemas, user accounts, and authentication guards | Phase 03                    |
+| **Web Dashboard**          | Mobile-first responsive web/PWA dashboard for creator review & edits | Phase 04                    |
+| **OpenShorts Integration** | Automated video slicing, reframing, and vertical rendering engine    | Phase 05                    |
+| **Gemini Content Engine**  | Multimodal comedic beat detection, captions, and metadata synthesis  | Phase 06                    |
+| **Quality Control**        | Automated QC validation layer (audio, video, duration, compliance)   | Phase 07                    |
+| **Social Publishing**      | Modular social platform publishing adapters (YouTube, IG, TikTok)    | Phase 08                    |
+| **Analytics & Monitoring** | Ingestion of performance metrics, system health, and alerting        | Phase 09                    |
+| **Production Hardening**   | Fault-tolerance, disaster recovery, security audits, and deployment  | Phase 10                    |
 
 ---
 
@@ -134,19 +136,25 @@ pnpm run format:write
 Every phase transitions only after comprehensive verification:
 
 ```text
-[Phase 00: Initialization & Bootstrap] (COMPLETED & VERIFIED)
+[Phase 00: Project Initialization] (COMPLETED & VERIFIED)
                 ↓
 [Phase 01: Architecture & Planning] (UPCOMING)
                 ↓
-[Phase 02: Core Monorepo & Backend Foundation]
+[Phase 02: Development Foundation]
                 ↓
-[Phase 03: Storage & Ingestion Pipeline]
+[Phase 03: Database & Authentication]
                 ↓
-[Phase 04: AI & Video Processing Engines]
+[Phase 04: Web Dashboard]
                 ↓
-[Phase 05: Web Dashboard & Human Approval UI]
+[Phase 05: OpenShorts Integration]
                 ↓
-[Phase 06: Publishing Adapters & Automation]
+[Phase 06: Gemini Content Engine]
                 ↓
-[Phase 07: Analytics, Monitoring & Hardening]
+[Phase 07: Quality Control]
+                ↓
+[Phase 08: Social Publishing]
+                ↓
+[Phase 09: Analytics & Monitoring]
+                ↓
+[Phase 10: Production Hardening]
 ```

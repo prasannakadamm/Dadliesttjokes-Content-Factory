@@ -40,7 +40,7 @@ This document establishes the architectural boundaries, ownership domains, and a
 Contains deployable application entry points.
 
 - `apps/web/`:
-  - **Belongs Here:** Future mobile-first creator web dashboard and PWA (Phase 05+).
+  - **Belongs Here:** Future mobile-first creator web dashboard and PWA (Phase 04+).
   - **Must NOT Be Placed Here:** Heavy background processing logic, database connection pools, un-sanitized server secrets, video rendering engines.
 - `apps/api/`:
   - **Belongs Here:** Future HTTP/WebSocket API gateway, request routing, authentication guards, and task dispatchers (Phase 02+).
@@ -62,7 +62,7 @@ Contains internal, shared workspace packages consumed by apps and workers.
 
 ### `workers/`
 
-- **Belongs Here:** Background queue consumers, video processing workers, asynchronous transcription jobs, and scheduled cron dispatchers (Phase 03+).
+- **Belongs Here:** Background queue consumers, video processing workers, asynchronous transcription jobs, and scheduled cron dispatchers (Phase 05+).
 - **Must NOT Be Placed Here:** Synchronous user-facing web handlers or UI templates.
 
 ### `docs/`

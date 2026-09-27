@@ -61,19 +61,19 @@ flowchart TD
 
 ## 2. Component Baseline Definitions
 
-### 2.1 Frontend
+### 2.1 Frontend (Target: Phase 04 — Web Dashboard)
 
 - **Baseline:** Mobile-first responsive web / Progressive Web App (PWA) dashboard.
 - **Role:** Facilitate media upload, review generated clips, adjust punchline tags, and trigger publication approvals from desktop or mobile devices.
 - **Phase 01 Validation Goal:** Select optimal framework (e.g., Next.js vs. Vite+React), assess SSR vs. SPA tradeoffs, and establish design system requirements.
 
-### 2.2 Backend
+### 2.2 Backend (Target: Phase 02 — Development Foundation)
 
 - **Baseline:** Modular cloud API gateway.
 - **Role:** Handle authentication, route ingestion requests, manage relational state, and dispatch asynchronous tasks.
 - **Phase 01 Validation Goal:** Validate framework (Fastify / Express / NestJS), establish API protocol (REST vs. GraphQL / tRPC), and define modularity patterns.
 
-### 2.3 Database
+### 2.3 Database (Target: Phase 03 — Database & Authentication)
 
 - **Baseline:** PostgreSQL.
 - **Role:** Structured relational data storage for user accounts, video metadata, processing job statuses, publication schedules, and analytics time-series.
@@ -91,38 +91,32 @@ flowchart TD
 - **Role:** Retain raw media uploads, intermediate video slices, audio stems, final 9:16 vertical renders, thumbnails, and caption files.
 - **Phase 01 Validation Goal:** Define bucket lifecycle policies, presigned URL upload workflows, and edge CDN distribution.
 
-### 2.6 Video Engine
+### 2.6 Video Engine (Target: Phase 05 — OpenShorts Integration)
 
 - **Baseline:** OpenShorts integration.
 - **Role:** Automated vertical reframing, intelligent scene cropping, visual centering, and caption burning.
 - **Phase 01 Validation Goal:** Vet OpenShorts API/CLI integration, compute requirements (GPU vs. CPU), containerization, and fallback rendering pipelines (e.g., FFmpeg).
 
-### 2.7 AI / Content Intelligence
+### 2.7 AI / Content Intelligence (Target: Phase 06 — Gemini Content Engine)
 
 - **Baseline:** Gemini (Google DeepMind multimodal models).
 - **Role:** Long-form video comprehension, humor analysis, punchline discovery, transcription synchronization, and platform-tailored metadata generation.
 - **Phase 01 Validation Goal:** Test Gemini 1.5/2.0 multimodal prompt engineering, latency, token economics, and structured JSON output compliance.
 
-### 2.8 Quality Control (QC)
+### 2.8 Quality Control (QC) (Target: Phase 07 — Quality Control)
 
-- **Baseline:** Automated automated QC layer.
+- **Baseline:** Automated QC validation layer.
 - **Role:** Verify audio levels, speech-to-caption synchronization, aspect ratio conformity (1080x1920), duration constraints, and platform compliance prior to approval.
 - **Phase 01 Validation Goal:** Determine validation rulesets, automated acceptance scoring, and rejection escalation workflows.
 
-### 2.9 Publishing Adapters
+### 2.9 Publishing Adapters (Target: Phase 08 — Social Publishing)
 
 - **Baseline:** Modular social-platform adapters.
 - **Role:** Isolate platform-specific publishing APIs (YouTube Data API v3, Instagram Graph API, TikTok Content Posting API) behind a standardized publisher interface.
 - **Phase 01 Validation Goal:** Audit platform token management, rate limit policies, and webhook callbacks.
 
-### 2.10 Analytics
+### 2.10 Analytics & Monitoring (Target: Phase 09 — Analytics & Monitoring)
 
-- **Baseline:** Platform analytics ingestion + internal project metrics.
-- **Role:** Ingest video performance metrics (views, completion rate, likes, shares) and internal pipeline metrics (processing duration, cost per video).
-- **Phase 01 Validation Goal:** Design ingestion schedules, aggregation schemas, and visualization endpoints.
-
-### 2.11 Monitoring
-
-- **Baseline:** Automated health checks + external monitoring.
-- **Role:** Real-time visibility into queue depth, worker heartbeats, API latency, and failure alerting.
-- **Phase 01 Validation Goal:** Select observability stack (OpenTelemetry, Prometheus/Grafana, or cloud-managed observability).
+- **Baseline:** Platform analytics ingestion + project metrics + automated health checks & monitoring.
+- **Role:** Ingest video performance metrics (views, completion rate, likes, shares), pipeline metrics (processing duration, cost per video), and operational health monitoring.
+- **Phase 01 Validation Goal:** Design ingestion schedules, aggregation schemas, and select observability stack (OpenTelemetry, Prometheus/Grafana, or cloud-managed observability).

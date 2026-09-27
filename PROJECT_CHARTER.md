@@ -83,11 +83,14 @@ flowchart LR
 
 Development proceeds strictly through numbered sequential phases:
 
-- **Phase 00:** Project Initialization & Development Foundation Bootstrap _(Current)_
-- **Phase 01:** Architecture & Planning (Technical Specs, Schema Design, Provider Vetting)
-- **Phase 02:** Core Monorepo & Backend Foundation (API gateway, Shared Packages, Database)
-- **Phase 03:** Storage & Media Ingestion Pipeline
-- **Phase 04:** AI Intelligence & Video Processing Engine (Gemini & OpenShorts Adapters)
-- **Phase 05:** Web Dashboard & Editorial Approval UI
-- **Phase 06:** Social Platform Publishing Adapters
-- **Phase 07:** Analytics, Observability, Hardening & Production Operations
+- **Phase 00:** Project Initialization _(Current)_
+- **Phase 01:** Architecture & Planning
+- **Phase 02:** Development Foundation
+- **Phase 03:** Database & Authentication
+- **Phase 04:** Web Dashboard
+- **Phase 05:** OpenShorts Integration
+- **Phase 06:** Gemini Content Engine
+- **Phase 07:** Quality Control
+- **Phase 08:** Social Publishing
+- **Phase 09:** Analytics & Monitoring
+- **Phase 10:** Production Hardening
