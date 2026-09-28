@@ -9,26 +9,26 @@ This document establishes the architectural boundaries, ownership domains, and a
 ```text
 /
 ├── apps/
-│   ├── web/
-│   └── api/
+│   ├── web/                     # Next.js App Router frontend foundation
+│   └── api/                     # Fastify micro-service API gateway foundation
 ├── packages/
-│   ├── config/
-│   ├── types/
-│   └── utils/
-├── workers/
+│   ├── config/                  # Shared TypeScript presets and Zod environment schemas
+│   ├── types/                   # Shared API contracts and foundational response types
+│   └── utils/                   # Shared pure utility functions (Phase 02+ placeholder)
+├── workers/                     # Background queue consumers and video processors (Phase 05+)
 ├── docs/
-│   ├── architecture/
-│   ├── development/
-│   ├── decisions/
-│   └── operations/
-├── scripts/
+│   ├── architecture/            # Architectural decisions and baseline designs
+│   ├── development/             # Environment, setup, and structure guides
+│   ├── decisions/               # Architecture Decision Records (ADRs)
+│   └── operations/              # Operational runbooks and deployment guides
+├── scripts/                     # Operational, CI, and maintenance scripts
 ├── tests/
-│   ├── integration/
-│   └── e2e/
+│   ├── integration/             # Multi-package integration tests
+│   └── e2e/                     # End-to-end workflow verification tests
 ├── .github/
-│   └── workflows/
-├── .vscode/
-└── .antigravity/
+│   └── workflows/               # CI/CD automation pipelines
+├── .vscode/                     # Workspace editor settings and extension recommendations
+└── .antigravity/                # Agent runtime instructions and session configurations
 ```
 
 ---
@@ -40,10 +40,12 @@ This document establishes the architectural boundaries, ownership domains, and a
 Contains deployable application entry points.
 
 - `apps/web/`:
-  - **Belongs Here:** Future mobile-first creator web dashboard and PWA (Phase 04+).
+  - **Phase 02 Baseline:** Minimal Next.js App Router root layout and foundation status page.
+  - **Future Scope (Phase 04+):** Mobile-first creator web dashboard and PWA.
   - **Must NOT Be Placed Here:** Heavy background processing logic, database connection pools, un-sanitized server secrets, video rendering engines.
 - `apps/api/`:
-  - **Belongs Here:** Future HTTP/WebSocket API gateway, request routing, authentication guards, and task dispatchers (Phase 02+).
+  - **Phase 02 Baseline:** Fastify micro-service with structured logging, CORS, error handling, and `/health` process endpoint.
+  - **Future Scope (Phase 03+):** Database integration, authentication guards, and task dispatchers.
   - **Must NOT Be Placed Here:** UI components, client-side state hooks, long-running CPU-heavy video rendering processes.
 
 ### `packages/`
@@ -51,13 +53,13 @@ Contains deployable application entry points.
 Contains internal, shared workspace packages consumed by apps and workers.
 
 - `packages/config/`:
-  - **Belongs Here:** Shared TypeScript, ESLint, Prettier, or environment validation schemas (Phase 02+).
+  - **Belongs Here:** Shared TypeScript tsconfigs (`tsconfig.base.json`, `tsconfig.node.json`, `tsconfig.next.json`), and validated Zod environment schemas.
   - **Must NOT Be Placed Here:** Domain logic or concrete business code.
 - `packages/types/`:
-  - **Belongs Here:** Shared domain types, DTO interfaces, database entity types, and API contract specifications (Phase 02+).
+  - **Belongs Here:** Shared foundational contract types (e.g. `HealthCheckResponse`, `ApiResponse<T>`).
   - **Must NOT Be Placed Here:** Runtime implementations or heavy libraries.
 - `packages/utils/`:
-  - **Belongs Here:** Shared pure helper functions, string formatting, date utilities, and common logging wrappers (Phase 02+).
+  - **Belongs Here:** Shared pure helper functions, string formatting, date utilities, and common logging wrappers (when justified).
   - **Must NOT Be Placed Here:** App-specific business rules.
 
 ### `workers/`

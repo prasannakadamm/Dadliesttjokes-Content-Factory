@@ -32,7 +32,7 @@ pnpm --version
 # Expected output: 12.6.0
 ```
 
-Install root workspace dependencies:
+Install workspace dependencies:
 
 ```bash
 pnpm install
@@ -42,26 +42,69 @@ pnpm install
 
 ## 3. Verified Baseline Commands
 
-The following commands have been tested and verified to work cleanly in this environment:
+The following commands are tested and verified to work with exit code 0:
 
-### Verify Code & Documentation Formatting
+### Development Startup
 
-Runs Prettier across all markdown, JSON, YAML, and configuration files:
+Starts both Web and API applications concurrently in development mode:
 
 ```bash
-pnpm run format:check
+pnpm run dev
+# or: pnpm run development
 ```
 
-### Auto-Format Files
+- Web runs at: `http://localhost:3000`
+- API runs at: `http://localhost:4000` (Health check: `http://localhost:4000/health`)
 
-Formats repository files in accordance with `.prettierrc.json` and `.editorconfig`:
+### Production Build
+
+Compiles TypeScript packages, builds the Fastify API, and creates optimized Next.js production bundles:
 
 ```bash
+pnpm run build
+```
+
+### Type Checking
+
+Executes TypeScript compiler across all workspace packages and apps without emitting files:
+
+```bash
+pnpm run typecheck
+```
+
+### Linting
+
+Runs ESLint checks across all apps and packages:
+
+```bash
+pnpm run lint
+```
+
+### Automated Testing
+
+Runs Vitest test suites across all packages and apps:
+
+```bash
+pnpm run test
+```
+
+### Code Formatting
+
+Check or apply Prettier formatting across the entire monorepo:
+
+```bash
+# Check formatting
+pnpm run format:check
+
+# Format files
 pnpm run format:write
 ```
 
 ---
 
-## 4. Verification Policy
+## 4. Phase Boundary Status
 
-> **RULE:** Only commands that have been directly executed and confirmed with exit code 0 are documented here. Commands for future frameworks (e.g. `pnpm run dev`, `pnpm run build`, `pnpm test`) are intentionally absent until their respective phases are implemented and validated.
+- **Phase 00 (Project Initialization):** VERIFIED & LOCKED
+- **Phase 01 (Architecture & Planning):** VERIFIED & LOCKED
+- **Phase 02 (Development Foundation):** ACTIVE / VERIFIED
+- **Phase 03 (Database & Authentication):** NOT STARTED
