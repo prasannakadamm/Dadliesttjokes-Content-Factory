@@ -39,15 +39,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Primary session transport via secure HttpOnly cookie with fallback support for Authorization Bearer headers.
 - **Environment Configuration:**
   - Extended `packages/config/src/env.ts` with `DATABASE_URL`, `AUTH_SECRET`, `SESSION_TTL_HOURS`.
+  - Added strict production validation: requires an explicitly supplied `DATABASE_URL` in production, rejecting missing values, default dev credentials, and localhost placeholders.
   - Added safe placeholder defaults to `.env.example`.
 - **Testing & Security Suite:**
   - In-memory PostgreSQL testing via `pg-mem` and `drizzle-pgmem` ensuring isolated, deterministic test runs without external daemon dependencies.
-  - 50 automated tests across all packages (unit, integration, and security audit tests).
+  - 55 automated tests across all packages (unit, integration, and security audit tests).
 
 ### Changed
 
-- **Security Hardening:** Removed raw session token exposure from `POST /auth/register` and `POST /auth/login` JSON responses to eliminate unnecessary credential exposure; authentication relies securely on HttpOnly session cookies.
-- **Phase Status:** Phase 03 implementation completed and hardened; status is ACTIVE / VERIFICATION PENDING. Phase 04 marked NOT STARTED.
+- **Security Hardening:**
+  - Hardened production database configuration to strictly reject missing `DATABASE_URL` and development/localhost placeholders.
+  - Removed raw session token exposure from `POST /auth/register` and `POST /auth/login` JSON responses to eliminate unnecessary credential exposure; authentication relies securely on HttpOnly session cookies.
+- **Phase Status:** Phase 03 implementation completed, hardened, and reconciled; status is ACTIVE / VERIFICATION PENDING. Phase 04 marked NOT STARTED.
 - **Documentation:** Updated `README.md`, `PHASE_STATUS.md`, `docs/development/SETUP.md`, `docs/development/ENVIRONMENT.md`.
 
 ---

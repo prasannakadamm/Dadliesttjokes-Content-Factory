@@ -21,11 +21,16 @@ export const apiEnvSchema = z
         message: 'Wildcard CORS origin ("*") is prohibited when credentials are enabled.',
       }),
     DATABASE_URL: z
-      .string()
-      .refine((val) => val.startsWith('postgres://') || val.startsWith('postgresql://'), {
-        message: 'DATABASE_URL must be a valid postgresql:// or postgres:// connection string.',
-      })
-      .default('postgresql://postgres:postgres@localhost:5432/dadliesttjokes_db'),
+      .preprocess(
+        (val) => (val === undefined || val === '' ? undefined : String(val).trim()),
+        z
+          .string()
+          .refine((val) => val.startsWith('postgres://') || val.startsWith('postgresql://'), {
+            message: 'DATABASE_URL must be a valid postgresql:// or postgres:// connection string.',
+          })
+          .optional(),
+      )
+      .default('postgresql://postgres:postgres@localhost:5432/dadliesttjokes_dev'),
     AUTH_SECRET: z
       .string()
       .min(16, { message: 'AUTH_SECRET must be at least 16 characters.' })
@@ -40,11 +45,35 @@ export const apiEnvSchema = z
   })
   .superRefine((data, ctx) => {
     if (data.NODE_ENV === 'production') {
-      if (data.AUTH_SECRET.includes('insecure-dev')) {
+      if (
+        data.AUTH_SECRET.includes('insecure-dev') ||
+        data.AUTH_SECRET.includes('dev_insecure') ||
+        data.AUTH_SECRET === 'insecure-dev-auth-secret-minimum-16-characters-long'
+      ) {
         ctx.addIssue({
           code: z.ZodIssueCode.custom,
           path: ['AUTH_SECRET'],
           message: 'Default insecure AUTH_SECRET is strictly prohibited in production environment.',
+        });
+      }
+
+      const isKnownDevPlaceholder =
+        data.DATABASE_URL === 'postgresql://postgres:postgres@localhost:5432/dadliesttjokes_dev' ||
+        data.DATABASE_URL === 'postgresql://postgres:postgres@localhost:5432/dadliesttjokes_db' ||
+        data.DATABASE_URL === 'postgresql://postgres:postgres@localhost:5432/dadliesttjokes_test' ||
+        data.DATABASE_URL === 'postgresql://user:password@localhost:5432/dadliesttjokes_db';
+
+      const usesDefaultLocalCredentials =
+        data.DATABASE_URL.includes('postgres:postgres@localhost') ||
+        data.DATABASE_URL.includes('postgres:postgres@127.0.0.1') ||
+        data.DATABASE_URL.includes('user:password@localhost');
+
+      if (isKnownDevPlaceholder || usesDefaultLocalCredentials) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          path: ['DATABASE_URL'],
+          message:
+            'Production environment requires an explicitly supplied, production-safe DATABASE_URL. Default local development database credentials and localhost placeholders are prohibited.',
         });
       }
     }

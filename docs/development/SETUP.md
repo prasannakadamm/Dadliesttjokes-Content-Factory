@@ -115,7 +115,7 @@ pnpm run lint
 
 ### Automated Testing
 
-Runs Vitest test suites across all packages and apps (49/49 passing):
+Runs Vitest test suites across all packages and apps (55/55 passing):
 
 ```bash
 pnpm run test

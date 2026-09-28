@@ -56,10 +56,10 @@
    - Safe identity injection into `request.user` and `request.session`.
 7. **Environment Configuration Extension:**
    - Extended `packages/config/src/env.ts` with `DATABASE_URL`, `AUTH_SECRET` (min 16 chars), `SESSION_TTL_HOURS` (1..8760, default 168).
-   - Prohibits insecure default secret in production environments.
+   - Enforced strict production validation: rejects missing `DATABASE_URL`, rejects known development database placeholders and localhost credentials in production, and rejects insecure default `AUTH_SECRET`.
    - Updated `.env.example` with safe placeholder configuration.
-8. **Automated Testing Suite (50/50 Passing):**
-   - Config tests: Database and auth environment variable validation.
+8. **Automated Testing Suite (55/55 Passing):**
+   - Config tests: Database and auth environment variable validation (development, test, and hardened production validation).
    - Password service tests: Hashing, verification, strength enforcement, timing mitigation.
    - Database schema tests: Insertions, unique email constraint enforcement, email index queries, lifecycle.
    - Auth integration tests: Registration, login, logout, cookie handling, session invalidation, `/auth/me`, zero token in response body.
@@ -74,10 +74,11 @@
 - [x] Prettier formatting verified (`pnpm run format:check` exit code 0)
 - [x] TypeScript strict typechecking passes across all workspace packages (`pnpm run typecheck` exit code 0)
 - [x] ESLint checks pass across all workspace packages (`pnpm run lint` exit code 0)
-- [x] Automated test suites pass across all packages (`pnpm run test` exit code 0; 50/50 tests pass)
+- [x] Automated test suites pass across all packages (`pnpm run test` exit code 0; 55/55 tests pass)
 - [x] Production builds succeed for all projects (`pnpm run build` exit code 0)
 - [x] API `/health` endpoint reports process health and optional database probe status
 - [x] Safe environment handling verified with Zod schemas and inert defaults
+- [x] Production strictly rejects missing DATABASE_URL and local development database placeholders
 - [x] Raw session tokens are never returned in JSON response bodies (HttpOnly cookie transport only)
 - [x] Password hashes are never exposed in API responses or logs
 - [x] Session tokens are hashed with SHA-256 before database storage

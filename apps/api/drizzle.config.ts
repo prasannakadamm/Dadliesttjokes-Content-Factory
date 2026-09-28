@@ -6,6 +6,7 @@ export default defineConfig({
   dialect: 'postgresql',
   dbCredentials: {
     url:
-      process.env.DATABASE_URL || 'postgresql://postgres:postgres@localhost:5432/dadliesttjokes_db',
+      process.env.DATABASE_URL ||
+      'postgresql://postgres:postgres@localhost:5432/dadliesttjokes_dev',
   },
 });
