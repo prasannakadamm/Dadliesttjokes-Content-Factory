@@ -13,7 +13,12 @@ export const apiEnvSchema = z.object({
     )
     .default(4000),
   HOST: z.string().default('0.0.0.0'),
-  CORS_ORIGIN: z.string().default('http://localhost:3000'),
+  CORS_ORIGIN: z
+    .string()
+    .default('http://localhost:3000')
+    .refine((val) => val !== '*', {
+      message: 'Wildcard CORS origin ("*") is prohibited when credentials are enabled.',
+    }),
   LOG_LEVEL: z.enum(['fatal', 'error', 'warn', 'info', 'debug', 'trace', 'silent']).optional(),
 });
 

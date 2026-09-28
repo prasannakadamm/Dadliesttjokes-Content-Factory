@@ -40,7 +40,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-- **Phase Status:** Phase 02 completed and locked. Phase 03 explicitly NOT STARTED.
+- **CORS Security:** Prohibited wildcard CORS origin ("*") when credentials are enabled at both schema validation and runtime application levels.
+- **Phase Status:** Phase 02 implementation complete; status is ACTIVE / VERIFICATION PENDING awaiting independent external audit. Phase 03 is NOT STARTED.
 - **Documentation:** Updated `README.md`, `PHASE_STATUS.md`, `docs/development/PROJECT_STRUCTURE.md`, `docs/development/SETUP.md`.
 
 ---

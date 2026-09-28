@@ -12,6 +12,12 @@ export interface BuildAppOptions {
 export function buildApp(options: BuildAppOptions): FastifyInstance {
   const { config, serverOptions = {} } = options;
 
+  if (config.CORS_ORIGIN === '*') {
+    throw new Error(
+      'Unsafe wildcard CORS configuration: CORS_ORIGIN="*" is prohibited when credentials are enabled.',
+    );
+  }
+
   const isTest = config.NODE_ENV === 'test';
   const isDev = config.NODE_ENV === 'development';
 
@@ -24,9 +30,9 @@ export function buildApp(options: BuildAppOptions): FastifyInstance {
     ...serverOptions,
   });
 
-  // Enable CORS with configured origin
+  // Enable CORS with configured explicit origin
   app.register(cors, {
-    origin: config.CORS_ORIGIN === '*' ? true : [config.CORS_ORIGIN],
+    origin: [config.CORS_ORIGIN],
     methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
     credentials: true,
   });

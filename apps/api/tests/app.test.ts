@@ -51,5 +51,40 @@ describe('API Foundation - App Error Handling and Configuration', () => {
     });
 
     expect(response.headers['access-control-allow-origin']).toBe('http://localhost:3000');
+    expect(response.headers['access-control-allow-credentials']).toBe('true');
+  });
+
+  it('rejects CORS preflight from unapproved origin', async () => {
+    const response = await app.inject({
+      method: 'OPTIONS',
+      url: '/health',
+      headers: {
+        origin: 'http://malicious-site.com',
+        'access-control-request-method': 'GET',
+      },
+    });
+
+    expect(response.headers['access-control-allow-origin']).toBeUndefined();
+  });
+
+  it('prohibits wildcard CORS origin with credentials at config level', () => {
+    expect(() =>
+      loadApiConfig({
+        CORS_ORIGIN: '*',
+      }),
+    ).toThrow(/Wildcard CORS origin/);
+  });
+
+  it('prohibits wildcard CORS origin at buildApp runtime level', () => {
+    expect(() =>
+      buildApp({
+        config: {
+          NODE_ENV: 'test',
+          PORT: 4003,
+          HOST: '0.0.0.0',
+          CORS_ORIGIN: '*',
+        },
+      }),
+    ).toThrow(/Unsafe wildcard CORS configuration/);
   });
 });

@@ -24,6 +24,12 @@ describe('packages/config - Environment Validation', () => {
     expect(() => validateEnv(apiEnvSchema, { PORT: '999999' })).toThrow(EnvironmentValidationError);
   });
 
+  it('throws EnvironmentValidationError when CORS_ORIGIN is wildcard *', () => {
+    expect(() => validateEnv(apiEnvSchema, { CORS_ORIGIN: '*' })).toThrow(
+      EnvironmentValidationError,
+    );
+  });
+
   it('validates webEnvSchema with defaults', () => {
     const env = validateEnv(webEnvSchema, {});
     expect(env.NODE_ENV).toBe('development');
