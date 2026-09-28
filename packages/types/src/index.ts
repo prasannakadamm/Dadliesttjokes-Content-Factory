@@ -46,8 +46,12 @@ export interface LoginInput {
   password: string;
 }
 
+export interface AuthResponseData {
+  user: UserDto;
+  expiresAt: string;
+}
+
 export interface AuthSessionData {
   user: UserDto;
-  token?: string;
   expiresAt: string;
 }

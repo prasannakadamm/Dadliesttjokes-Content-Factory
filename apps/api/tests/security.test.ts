@@ -26,7 +26,7 @@ describe('Security Audit Tests', () => {
     await app.close();
   });
 
-  it('never exposes password or passwordHash in registration responses', async () => {
+  it('never exposes password, passwordHash, or session token in registration responses', async () => {
     const res = await app.inject({
       method: 'POST',
       url: '/auth/register',
@@ -40,13 +40,21 @@ describe('Security Audit Tests', () => {
     const body = res.json();
     const rawBodyStr = res.payload;
 
+    // Zero credential exposure in JSON body
     expect(rawBodyStr).not.toContain('SuperSecretPassword123!');
     expect(rawBodyStr).not.toContain('passwordHash');
     expect(body.data.user.passwordHash).toBeUndefined();
     expect(body.data.user.password).toBeUndefined();
+    expect(body.data.token).toBeUndefined();
+
+    // Verify session token is set ONLY in HttpOnly cookie
+    const cookieObj = res.cookies.find((c) => c.name === 'session_token');
+    expect(cookieObj).toBeDefined();
+    expect(cookieObj!.httpOnly).toBe(true);
+    expect(cookieObj!.value.length).toBe(64);
   });
 
-  it('never exposes password or passwordHash in login responses', async () => {
+  it('never exposes password, passwordHash, or session token in login responses', async () => {
     await app.inject({
       method: 'POST',
       url: '/auth/register',
@@ -69,12 +77,20 @@ describe('Security Audit Tests', () => {
     const body = res.json();
     const rawBodyStr = res.payload;
 
+    // Zero credential exposure in JSON body
     expect(rawBodyStr).not.toContain('SuperSecretPassword123!');
     expect(rawBodyStr).not.toContain('passwordHash');
     expect(body.data.user.passwordHash).toBeUndefined();
+    expect(body.data.user.password).toBeUndefined();
+    expect(body.data.token).toBeUndefined();
+
+    // Verify session token is set in HttpOnly cookie
+    const cookieObj = res.cookies.find((c) => c.name === 'session_token');
+    expect(cookieObj).toBeDefined();
+    expect(cookieObj!.httpOnly).toBe(true);
   });
 
-  it('never exposes password or passwordHash in /auth/me responses', async () => {
+  it('never exposes password, passwordHash, or session token in /auth/me responses', async () => {
     const regRes = await app.inject({
       method: 'POST',
       url: '/auth/register',
@@ -84,13 +100,14 @@ describe('Security Audit Tests', () => {
       },
     });
 
-    const token = regRes.json().data.token;
+    const cookieObj = regRes.cookies.find((c) => c.name === 'session_token');
+    expect(cookieObj).toBeDefined();
 
     const meRes = await app.inject({
       method: 'GET',
       url: '/auth/me',
-      headers: {
-        authorization: `Bearer ${token}`,
+      cookies: {
+        session_token: cookieObj!.value,
       },
     });
 
@@ -101,9 +118,10 @@ describe('Security Audit Tests', () => {
     expect(rawBodyStr).not.toContain('SuperSecretPassword123!');
     expect(rawBodyStr).not.toContain('passwordHash');
     expect(body.data.user.passwordHash).toBeUndefined();
+    expect(body.data.token).toBeUndefined();
   });
 
-  it('stores session tokens as SHA-256 hashes, never plaintext', async () => {
+  it('stores session tokens as SHA-256 hashes, never plaintext in database', async () => {
     const regRes = await app.inject({
       method: 'POST',
       url: '/auth/register',
@@ -113,7 +131,9 @@ describe('Security Audit Tests', () => {
       },
     });
 
-    const rawToken = regRes.json().data.token;
+    const cookieObj = regRes.cookies.find((c) => c.name === 'session_token');
+    expect(cookieObj).toBeDefined();
+    const rawToken = cookieObj!.value;
     expect(typeof rawToken).toBe('string');
     expect(rawToken.length).toBe(64); // 32 bytes hex
 
@@ -129,6 +149,53 @@ describe('Security Audit Tests', () => {
     const expectedHash = crypto.createHash('sha256').update(rawToken).digest('hex');
     const matchingHash = sessionRecords.find((s) => s.tokenHash === expectedHash);
     expect(matchingHash).toBeDefined();
+  });
+
+  it('ensures invalidated sessions cannot be reused after logout', async () => {
+    const regRes = await app.inject({
+      method: 'POST',
+      url: '/auth/register',
+      payload: {
+        email: 'security.logout@example.com',
+        password: 'SuperSecretPassword123!',
+      },
+    });
+
+    const cookieObj = regRes.cookies.find((c) => c.name === 'session_token');
+    expect(cookieObj).toBeDefined();
+    const token = cookieObj!.value;
+
+    // Authenticated access works
+    const accessBefore = await app.inject({
+      method: 'GET',
+      url: '/auth/me',
+      cookies: { session_token: token },
+    });
+    expect(accessBefore.statusCode).toBe(200);
+
+    // Logout
+    const logoutRes = await app.inject({
+      method: 'POST',
+      url: '/auth/logout',
+      cookies: { session_token: token },
+    });
+    expect(logoutRes.statusCode).toBe(200);
+
+    // Subsequent access with previously valid cookie must be rejected
+    const accessAfterCookie = await app.inject({
+      method: 'GET',
+      url: '/auth/me',
+      cookies: { session_token: token },
+    });
+    expect(accessAfterCookie.statusCode).toBe(401);
+
+    // Subsequent access with previously valid header must also be rejected
+    const accessAfterHeader = await app.inject({
+      method: 'GET',
+      url: '/auth/me',
+      headers: { authorization: `Bearer ${token}` },
+    });
+    expect(accessAfterHeader.statusCode).toBe(401);
   });
 
   it('mitigates account enumeration with uniform error messages and codes', async () => {

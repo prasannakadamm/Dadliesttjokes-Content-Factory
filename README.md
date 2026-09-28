@@ -177,9 +177,10 @@ pnpm run db:migrate    # Apply pending migrations to PostgreSQL database
 
 ### Session & Token Security
 
-- **Dual Transport:** Sessions can be authenticated via `session_token` cookie or `Authorization: Bearer <token>` header.
-- **Cookie Security:** Cookies are configured with `HttpOnly`, `SameSite: Lax`, and `Secure` (in production).
-- **Zero Plaintext Token Storage:** Database stores only the SHA-256 hash of session tokens.
+- **HttpOnly Cookie Authentication:** The session credential is maintained securely through an `HttpOnly` cookie and is strictly NOT returned in JSON response bodies (`POST /auth/register`, `POST /auth/login`), preventing XSS credential theft.
+- **Dual Transport:** Protected API routes accept authentication via the primary `session_token` cookie or `Authorization: Bearer <token>` header for headless API clients.
+- **Cookie Security:** Cookies are configured with `HttpOnly: true`, `SameSite: Lax`, `Path: /`, explicit `maxAge`, and `Secure: true` (in production).
+- **Zero Plaintext Token Storage:** The database stores only the SHA-256 hash of session tokens; raw tokens are never persisted.
 - **Zero Password Hash Exposure:** Password hashes are stripped before any API response is sent.
 - **Timing Attack Mitigation:** Authentication verifies a dummy hash on non-existent accounts to eliminate timing differentials.
 

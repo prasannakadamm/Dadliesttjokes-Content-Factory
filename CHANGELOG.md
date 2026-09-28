@@ -29,24 +29,25 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Cryptographically secure 32-byte hex session tokens, stored in DB exclusively as SHA-256 hashes.
   - Sanitized user representations ensuring password hashes are never exposed.
 - **Authentication API Routes:**
-  - `POST /auth/register`: User registration with input validation, session creation, and HttpOnly cookie issuance.
-  - `POST /auth/login`: Credential validation with uniform error responses to mitigate account enumeration.
+  - `POST /auth/register`: User registration with input validation, session creation, and HttpOnly cookie issuance (zero raw token in JSON response).
+  - `POST /auth/login`: Credential validation with uniform error responses to mitigate account enumeration, issuing HttpOnly session cookie (zero raw token in JSON response).
   - `POST /auth/logout`: Session revocation and cookie clearance.
   - `GET /auth/me`: Protected route returning authenticated user identity.
 - **Authentication & Authorization Middleware:**
   - Fastify authentication plugin `apps/api/src/middleware/auth.ts` with `@fastify/cookie`.
   - Pre-handler decorators `fastify.authenticate` and `fastify.requireRole` establishing the authorization foundation.
-  - Dual session transport: `session_token` cookie and `Authorization: Bearer <token>` header.
+  - Primary session transport via secure HttpOnly cookie with fallback support for Authorization Bearer headers.
 - **Environment Configuration:**
   - Extended `packages/config/src/env.ts` with `DATABASE_URL`, `AUTH_SECRET`, `SESSION_TTL_HOURS`.
   - Added safe placeholder defaults to `.env.example`.
 - **Testing & Security Suite:**
   - In-memory PostgreSQL testing via `pg-mem` and `drizzle-pgmem` ensuring isolated, deterministic test runs without external daemon dependencies.
-  - 49 automated tests across all packages (unit, integration, and security audit tests).
+  - 50 automated tests across all packages (unit, integration, and security audit tests).
 
 ### Changed
 
-- **Phase Status:** Phase 03 implementation completed; status updated to ACTIVE / VERIFICATION PENDING. Phase 04 marked NOT STARTED.
+- **Security Hardening:** Removed raw session token exposure from `POST /auth/register` and `POST /auth/login` JSON responses to eliminate unnecessary credential exposure; authentication relies securely on HttpOnly session cookies.
+- **Phase Status:** Phase 03 implementation completed and hardened; status is ACTIVE / VERIFICATION PENDING. Phase 04 marked NOT STARTED.
 - **Documentation:** Updated `README.md`, `PHASE_STATUS.md`, `docs/development/SETUP.md`, `docs/development/ENVIRONMENT.md`.
 
 ---

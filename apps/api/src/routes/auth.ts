@@ -29,12 +29,14 @@ export const authRoutes: FastifyPluginAsync<AuthRoutesOptions> = async (fastify,
 
   // Helper to set session cookie
   const setSessionCookie = (reply: FastifyReply, token: string, expiresAt: Date) => {
+    const maxAgeSeconds = Math.max(0, Math.floor((expiresAt.getTime() - Date.now()) / 1000));
     reply.setCookie('session_token', token, {
       path: '/',
       httpOnly: true,
       secure: isProd,
       sameSite: 'lax',
       expires: expiresAt,
+      maxAge: maxAgeSeconds,
     });
   };
 
@@ -60,7 +62,6 @@ export const authRoutes: FastifyPluginAsync<AuthRoutesOptions> = async (fastify,
         success: true,
         data: {
           user: result.user,
-          token: result.token,
           expiresAt: result.expiresAt.toISOString(),
         },
       });
@@ -100,7 +101,6 @@ export const authRoutes: FastifyPluginAsync<AuthRoutesOptions> = async (fastify,
         success: true,
         data: {
           user: result.user,
-          token: result.token,
           expiresAt: result.expiresAt.toISOString(),
         },
       });

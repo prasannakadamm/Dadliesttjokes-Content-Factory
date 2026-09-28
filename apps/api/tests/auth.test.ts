@@ -25,7 +25,7 @@ describe('Authentication API & Middleware Integration', () => {
   });
 
   describe('POST /auth/register', () => {
-    it('registers a new user successfully and sets session cookie', async () => {
+    it('registers a new user successfully, sets HttpOnly cookie, and does NOT expose raw token in response body', async () => {
       const response = await app.inject({
         method: 'POST',
         url: '/auth/register',
@@ -41,14 +41,18 @@ describe('Authentication API & Middleware Integration', () => {
       expect(body.data.user.id).toBeDefined();
       expect(body.data.user.email).toBe('newuser@dadliesttjokes.com');
       expect(body.data.user.role).toBe('creator');
-      expect(body.data.token).toBeDefined();
       expect(body.data.expiresAt).toBeDefined();
 
-      // Verify cookie is set
-      const cookies = response.headers['set-cookie'];
-      expect(cookies).toBeDefined();
-      expect(cookies).toContain('session_token=');
-      expect(cookies).toContain('HttpOnly');
+      // Verification: raw session token must NOT be returned in JSON response body
+      expect(body.data.token).toBeUndefined();
+      expect(body.data.user.passwordHash).toBeUndefined();
+
+      // Verify HttpOnly cookie is set
+      const cookieObj = response.cookies.find((c) => c.name === 'session_token');
+      expect(cookieObj).toBeDefined();
+      expect(cookieObj!.httpOnly).toBe(true);
+      expect(cookieObj!.value).toBeDefined();
+      expect(cookieObj!.value.length).toBe(64);
     });
 
     it('rejects registration with duplicate email with 409 conflict', async () => {
@@ -120,7 +124,7 @@ describe('Authentication API & Middleware Integration', () => {
       });
     });
 
-    it('logs in successfully with valid credentials', async () => {
+    it('logs in successfully with valid credentials, sets HttpOnly cookie, and does NOT expose raw token in response body', async () => {
       const response = await app.inject({
         method: 'POST',
         url: '/auth/login',
@@ -134,11 +138,17 @@ describe('Authentication API & Middleware Integration', () => {
       const body = JSON.parse(response.payload);
       expect(body.success).toBe(true);
       expect(body.data.user.email).toBe('existing@dadliesttjokes.com');
-      expect(body.data.token).toBeDefined();
+      expect(body.data.expiresAt).toBeDefined();
 
-      const cookies = response.headers['set-cookie'];
-      expect(cookies).toBeDefined();
-      expect(cookies).toContain('session_token=');
+      // Verification: raw session token must NOT be returned in JSON response body
+      expect(body.data.token).toBeUndefined();
+      expect(body.data.user.passwordHash).toBeUndefined();
+
+      // Verify HttpOnly cookie is set
+      const cookieObj = response.cookies.find((c) => c.name === 'session_token');
+      expect(cookieObj).toBeDefined();
+      expect(cookieObj!.httpOnly).toBe(true);
+      expect(cookieObj!.value).toBeDefined();
     });
 
     it('rejects login with incorrect password with 401', async () => {
@@ -177,7 +187,7 @@ describe('Authentication API & Middleware Integration', () => {
   });
 
   describe('GET /auth/me & Protected Route Authorization', () => {
-    let token: string;
+    let sessionToken: string;
 
     beforeEach(async () => {
       const regResponse = await app.inject({
@@ -188,16 +198,17 @@ describe('Authentication API & Middleware Integration', () => {
           password: 'ValidPassword123!',
         },
       });
-      const body = JSON.parse(regResponse.payload);
-      token = body.data.token;
+      const cookieObj = regResponse.cookies.find((c) => c.name === 'session_token');
+      expect(cookieObj).toBeDefined();
+      sessionToken = cookieObj!.value;
     });
 
-    it('returns current user via Authorization Bearer token', async () => {
+    it('returns current user via session_token cookie', async () => {
       const response = await app.inject({
         method: 'GET',
         url: '/auth/me',
-        headers: {
-          authorization: `Bearer ${token}`,
+        cookies: {
+          session_token: sessionToken,
         },
       });
 
@@ -206,14 +217,15 @@ describe('Authentication API & Middleware Integration', () => {
       expect(body.success).toBe(true);
       expect(body.data.user.email).toBe('me-test@dadliesttjokes.com');
       expect(body.data.user.role).toBe('creator');
+      expect(body.data.user.passwordHash).toBeUndefined();
     });
 
-    it('returns current user via session_token cookie', async () => {
+    it('returns current user via Authorization Bearer token header', async () => {
       const response = await app.inject({
         method: 'GET',
         url: '/auth/me',
-        cookies: {
-          session_token: token,
+        headers: {
+          authorization: `Bearer ${sessionToken}`,
         },
       });
 
@@ -221,6 +233,7 @@ describe('Authentication API & Middleware Integration', () => {
       const body = JSON.parse(response.payload);
       expect(body.success).toBe(true);
       expect(body.data.user.email).toBe('me-test@dadliesttjokes.com');
+      expect(body.data.user.role).toBe('creator');
     });
 
     it('rejects unauthenticated request with 401', async () => {
@@ -239,8 +252,8 @@ describe('Authentication API & Middleware Integration', () => {
       const response = await app.inject({
         method: 'GET',
         url: '/auth/me',
-        headers: {
-          authorization: 'Bearer invalid-tampered-token-123',
+        cookies: {
+          session_token: 'invalid-tampered-token-123',
         },
       });
 
@@ -261,13 +274,15 @@ describe('Authentication API & Middleware Integration', () => {
           password: 'ValidPassword123!',
         },
       });
-      const token = JSON.parse(reg.payload).data.token;
+      const cookieObj = reg.cookies.find((c) => c.name === 'session_token');
+      expect(cookieObj).toBeDefined();
+      const token = cookieObj!.value;
 
-      // Ensure /auth/me works before logout
+      // Ensure /auth/me works before logout via session cookie
       const beforeLogout = await app.inject({
         method: 'GET',
         url: '/auth/me',
-        headers: { authorization: `Bearer ${token}` },
+        cookies: { session_token: token },
       });
       expect(beforeLogout.statusCode).toBe(200);
 
@@ -275,7 +290,7 @@ describe('Authentication API & Middleware Integration', () => {
       const logoutResponse = await app.inject({
         method: 'POST',
         url: '/auth/logout',
-        headers: { authorization: `Bearer ${token}` },
+        cookies: { session_token: token },
       });
 
       expect(logoutResponse.statusCode).toBe(200);
@@ -286,7 +301,7 @@ describe('Authentication API & Middleware Integration', () => {
       const afterLogout = await app.inject({
         method: 'GET',
         url: '/auth/me',
-        headers: { authorization: `Bearer ${token}` },
+        cookies: { session_token: token },
       });
 
       expect(afterLogout.statusCode).toBe(401);
