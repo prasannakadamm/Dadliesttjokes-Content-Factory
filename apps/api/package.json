@@ -9,18 +9,30 @@
     "start": "node dist/index.js",
     "typecheck": "tsc --noEmit",
     "lint": "eslint .",
-    "test": "vitest run"
+    "test": "vitest run",
+    "db:generate": "drizzle-kit generate",
+    "db:migrate": "tsx src/db/migrate.ts"
   },
   "dependencies": {
     "@dadliesttjokes/config": "workspace:*",
     "@dadliesttjokes/types": "workspace:*",
+    "@fastify/cookie": "^11.1.2",
     "@fastify/cors": "^10.0.2",
+    "bcryptjs": "^3.0.3",
     "dotenv": "^16.4.7",
+    "drizzle-orm": "^0.45.3",
     "fastify": "^5.2.1",
+    "fastify-plugin": "^6.0.0",
+    "pg": "^8.13.3",
     "zod": "^3.23.8"
   },
   "devDependencies": {
+    "@types/bcryptjs": "^3.0.0",
     "@types/node": "^20.17.24",
+    "@types/pg": "^8.11.11",
+    "drizzle-kit": "^0.31.11",
+    "drizzle-pgmem": "^0.6.2",
+    "pg-mem": "^3.0.14",
     "tsx": "^4.19.3",
     "typescript": "^5.7.3",
     "vitest": "^3.0.7"

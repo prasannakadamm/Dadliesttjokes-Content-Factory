@@ -13,6 +13,9 @@ describe('packages/config - Environment Validation', () => {
     expect(env.PORT).toBe(4000);
     expect(env.HOST).toBe('0.0.0.0');
     expect(env.CORS_ORIGIN).toBe('http://localhost:3000');
+    expect(env.DATABASE_URL).toContain('postgresql://');
+    expect(env.AUTH_SECRET).toBeDefined();
+    expect(env.SESSION_TTL_HOURS).toBe(168);
   });
 
   it('coerces string port correctly', () => {
@@ -28,6 +31,27 @@ describe('packages/config - Environment Validation', () => {
     expect(() => validateEnv(apiEnvSchema, { CORS_ORIGIN: '*' })).toThrow(
       EnvironmentValidationError,
     );
+  });
+
+  it('throws EnvironmentValidationError on invalid DATABASE_URL', () => {
+    expect(() => validateEnv(apiEnvSchema, { DATABASE_URL: 'mysql://localhost:3306/db' })).toThrow(
+      EnvironmentValidationError,
+    );
+  });
+
+  it('throws EnvironmentValidationError on short AUTH_SECRET', () => {
+    expect(() => validateEnv(apiEnvSchema, { AUTH_SECRET: 'too-short' })).toThrow(
+      EnvironmentValidationError,
+    );
+  });
+
+  it('throws EnvironmentValidationError when default insecure AUTH_SECRET is used in production', () => {
+    expect(() =>
+      validateEnv(apiEnvSchema, {
+        NODE_ENV: 'production',
+        AUTH_SECRET: 'insecure-dev-auth-secret-minimum-16-characters-long',
+      }),
+    ).toThrow(EnvironmentValidationError);
   });
 
   it('validates webEnvSchema with defaults', () => {

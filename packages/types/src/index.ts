@@ -7,6 +7,7 @@ export interface HealthCheckResponse {
   uptimeSeconds: number;
   timestamp: string;
   environment: AppEnvironment;
+  database?: 'connected' | 'disconnected' | 'unconfigured';
 }
 
 export interface ApiErrorDetail {
@@ -26,3 +27,27 @@ export interface ApiErrorResponse {
 }
 
 export type ApiResponse<T> = ApiSuccessResponse<T> | ApiErrorResponse;
+
+export interface UserDto {
+  id: string;
+  email: string;
+  role: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface RegisterInput {
+  email: string;
+  password: string;
+}
+
+export interface LoginInput {
+  email: string;
+  password: string;
+}
+
+export interface AuthSessionData {
+  user: UserDto;
+  token?: string;
+  expiresAt: string;
+}

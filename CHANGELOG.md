@@ -7,6 +7,50 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [0.3.0] - Phase 03 Database & Authentication
+
+### Added
+
+- **PostgreSQL & Drizzle ORM Foundation:**
+  - Integrated Drizzle ORM (`drizzle-orm`) and PostgreSQL client (`pg`) into `apps/api`.
+  - Implemented centralized database connection client and lifecycle management in `apps/api/src/db/client.ts`.
+  - Added programmatic database migration runner `apps/api/src/db/migrate.ts` and `drizzle.config.ts`.
+  - Added deterministic root migration scripts: `db:generate` and `db:migrate`.
+  - Generated and committed initial migration `0000_acoustic_namor.sql`.
+- **User & Session Data Models:**
+  - `users` table: UUID PK, unique email with index, bcrypt password hash, role (`creator`), created/updated timestamps.
+  - `sessions` table: UUID PK, user foreign key with cascade delete, unique SHA-256 token hash with index, expiration timestamp with index, created timestamp.
+- **Password Security:**
+  - Bcrypt password hashing with 10 salt rounds and constant-time verification in `apps/api/src/services/password.ts`.
+  - Password strength validation policy (8-128 chars, alphanumeric).
+  - Timing attack mitigation via dummy verification for non-existent accounts.
+- **Authentication & Session Services:**
+  - Domain services in `apps/api/src/services/auth.ts`: `registerUser`, `loginUser`, `createSession`, `authenticateSessionToken`, `invalidateSession`, `toUserDto`.
+  - Cryptographically secure 32-byte hex session tokens, stored in DB exclusively as SHA-256 hashes.
+  - Sanitized user representations ensuring password hashes are never exposed.
+- **Authentication API Routes:**
+  - `POST /auth/register`: User registration with input validation, session creation, and HttpOnly cookie issuance.
+  - `POST /auth/login`: Credential validation with uniform error responses to mitigate account enumeration.
+  - `POST /auth/logout`: Session revocation and cookie clearance.
+  - `GET /auth/me`: Protected route returning authenticated user identity.
+- **Authentication & Authorization Middleware:**
+  - Fastify authentication plugin `apps/api/src/middleware/auth.ts` with `@fastify/cookie`.
+  - Pre-handler decorators `fastify.authenticate` and `fastify.requireRole` establishing the authorization foundation.
+  - Dual session transport: `session_token` cookie and `Authorization: Bearer <token>` header.
+- **Environment Configuration:**
+  - Extended `packages/config/src/env.ts` with `DATABASE_URL`, `AUTH_SECRET`, `SESSION_TTL_HOURS`.
+  - Added safe placeholder defaults to `.env.example`.
+- **Testing & Security Suite:**
+  - In-memory PostgreSQL testing via `pg-mem` and `drizzle-pgmem` ensuring isolated, deterministic test runs without external daemon dependencies.
+  - 49 automated tests across all packages (unit, integration, and security audit tests).
+
+### Changed
+
+- **Phase Status:** Phase 03 implementation completed; status updated to ACTIVE / VERIFICATION PENDING. Phase 04 marked NOT STARTED.
+- **Documentation:** Updated `README.md`, `PHASE_STATUS.md`, `docs/development/SETUP.md`, `docs/development/ENVIRONMENT.md`.
+
+---
+
 ## [0.2.0] - Phase 02 Development Foundation
 
 ### Added

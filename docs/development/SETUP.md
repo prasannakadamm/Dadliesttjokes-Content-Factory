@@ -11,6 +11,7 @@ Before setting up the repository, ensure your development environment has the fo
 - **Node.js:** `>=20.0.0` (Verified on Node.js `v24.15.0`)
 - **Package Manager:** `pnpm` (Verified on `pnpm` `12.6.0`)
   - Install via: `npm install -g pnpm`
+- **PostgreSQL:** `>=15.0` (for local development database execution)
 - **Git:** `>=2.40.0` (Verified on `git version 2.52.0.windows.1`)
 - **Editor:** Antigravity IDE or Visual Studio Code
 
@@ -38,6 +39,26 @@ Install workspace dependencies:
 pnpm install
 ```
 
+Configure your local environment:
+
+```bash
+cp .env.example .env
+```
+
+Ensure `DATABASE_URL` points to your local PostgreSQL instance:
+
+```env
+DATABASE_URL=postgresql://postgres:postgres@localhost:5432/dadliesttjokes_dev
+AUTH_SECRET=dev_insecure_auth_secret_must_change_in_production
+SESSION_TTL_HOURS=168
+```
+
+Run database migrations to apply the initial schema:
+
+```bash
+pnpm run db:migrate
+```
+
 ---
 
 ## 3. Verified Baseline Commands
@@ -55,6 +76,18 @@ pnpm run dev
 
 - Web runs at: `http://localhost:3000`
 - API runs at: `http://localhost:4000` (Health check: `http://localhost:4000/health`)
+
+### Database Migrations
+
+Generate and run Drizzle migrations:
+
+```bash
+# Generate SQL migration from schema changes
+pnpm run db:generate
+
+# Apply pending SQL migrations to PostgreSQL
+pnpm run db:migrate
+```
 
 ### Production Build
 
@@ -82,11 +115,14 @@ pnpm run lint
 
 ### Automated Testing
 
-Runs Vitest test suites across all packages and apps:
+Runs Vitest test suites across all packages and apps (49/49 passing):
 
 ```bash
 pnpm run test
 ```
+
+> **Note on Test Database Isolation:**
+> Automated tests execute against an isolated in-memory PostgreSQL instance (`pg-mem` + `drizzle-pgmem`). They do not depend on or alter your local or developer PostgreSQL database.
 
 ### Code Formatting
 
@@ -104,7 +140,8 @@ pnpm run format:write
 
 ## 4. Phase Boundary Status
 
-- **Phase 00 (Project Initialization):** VERIFIED & LOCKED
-- **Phase 01 (Architecture & Planning):** VERIFIED & LOCKED
-- **Phase 02 (Development Foundation):** ACTIVE / VERIFICATION PENDING
-- **Phase 03 (Database & Authentication):** NOT STARTED
+- **Phase 00 (Project Initialization):** VERIFIED / LOCKED (6958dbf)
+- **Phase 01 (Architecture & Planning):** VERIFIED / LOCKED at 42b9d81
+- **Phase 02 (Development Foundation):** VERIFIED / LOCKED at c48ccc5
+- **Phase 03 (Database & Authentication):** ACTIVE / VERIFICATION PENDING
+- **Phase 04 (Web Dashboard):** NOT STARTED

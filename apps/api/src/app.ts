@@ -2,11 +2,15 @@ import fastify, { FastifyError, FastifyInstance, FastifyServerOptions } from 'fa
 import cors from '@fastify/cors';
 import type { ApiEnv } from '@dadliesttjokes/config';
 import type { ApiErrorResponse } from '@dadliesttjokes/types';
+import { createDbClient, type DbClient } from './db/client.js';
+import { authPlugin } from './middleware/auth.js';
 import { healthRoutes } from './routes/health.js';
+import { authRoutes } from './routes/auth.js';
 
 export interface BuildAppOptions {
   config: ApiEnv;
   serverOptions?: FastifyServerOptions;
+  dbClient?: DbClient;
 }
 
 export function buildApp(options: BuildAppOptions): FastifyInstance {
@@ -37,8 +41,23 @@ export function buildApp(options: BuildAppOptions): FastifyInstance {
     credentials: true,
   });
 
+  // Initialize or attach database client
+  const dbClient = options.dbClient || createDbClient(config.DATABASE_URL);
+
+  // Register Auth Plugin (Cookie handling + authenticate decorators)
+  app.register(authPlugin, {
+    db: dbClient.db,
+    cookieSecret: config.AUTH_SECRET,
+  });
+
   // Register Foundation Routes
-  app.register(healthRoutes, { config });
+  app.register(healthRoutes, { config, dbClient });
+  app.register(authRoutes, { db: dbClient.db, config });
+
+  // Gracefully close database connection pool when app closes
+  app.addHook('onClose', async () => {
+    await dbClient.close();
+  });
 
   // Custom 404 Not Found Handler
   app.setNotFoundHandler((request, reply) => {

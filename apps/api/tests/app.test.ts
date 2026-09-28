@@ -83,6 +83,9 @@ describe('API Foundation - App Error Handling and Configuration', () => {
           PORT: 4003,
           HOST: '0.0.0.0',
           CORS_ORIGIN: '*',
+          DATABASE_URL: 'postgresql://postgres:postgres@localhost:5432/test',
+          AUTH_SECRET: 'test_auth_secret_minimum_16_chars',
+          SESSION_TTL_HOURS: 168,
         },
       }),
     ).toThrow(/Unsafe wildcard CORS configuration/);

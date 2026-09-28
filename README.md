@@ -1,7 +1,7 @@
 # Dadliesttjokes Content Factory
 
-> **Current Phase: Phase 02 — Development Foundation**<br />
-> **Status:** ACTIVE / VERIFICATION PENDING (Phase 03 NOT STARTED)
+> **Current Phase: Phase 03 — Database & Authentication**<br />
+> **Status:** ACTIVE / VERIFICATION PENDING (Phase 04 NOT STARTED)
 
 ---
 
@@ -22,10 +22,10 @@ The long-term objective of this platform is to automate the end-to-end content l
 - Ingest and analyze post-publishing performance metrics.
 - Provide continuous platform health monitoring and automated failure recovery.
 
-> **CRITICAL PHASE 02 NOTICE:**<br />
-> **Engineering Foundation Only.**<br />
-> Phase 02 establishes the developer foundation: pnpm workspace monorepo, Next.js App Router web foundation, Fastify API gateway foundation, shared TypeScript presets, Zod environment validation, deterministic tooling scripts, and automated test foundation.<br />
-> **Phase 03 (Database & Authentication) is NOT STARTED.** No database runtime, schemas, authentication, business logic, or creator dashboards are implemented.
+> **CRITICAL PHASE 03 NOTICE:**<br />
+> **Database & Authentication Foundation Only.**<br />
+> Phase 03 establishes the persistent storage and identity architecture: PostgreSQL integration, Drizzle ORM schemas, migration workflow, bcrypt password hashing, session-based authentication with SHA-256 token hashing, HttpOnly session cookies, authorization guards, and security audit.<br />
+> **Phase 04 (Web Dashboard) is NOT STARTED.** No creator UI, dashboard pages, Gemini AI integrations, OpenShorts video processing, or queue workers are implemented.
 
 ---
 
@@ -43,21 +43,21 @@ $$\textbf{ONE STEP} \longrightarrow \textbf{VERIFY} \longrightarrow \textbf{LOCK
 
 ---
 
-## 3. High-Level Future Capabilities
+## 3. Phase Status & Roadmap
 
-| Capability Domain          | Responsibility                                                        | Implementation Phase | Status                        |
-| :------------------------- | :-------------------------------------------------------------------- | :------------------- | :---------------------------- |
-| **Project Initialization** | Repository setup, governance docs, environment inspection             | Phase 00             | VERIFIED & LOCKED             |
-| **Architecture Baseline**  | Technical architecture, data models, async topology, technology stack | Phase 01             | VERIFIED & LOCKED             |
-| **Development Foundation** | Monorepo setup, Fastify API, Next.js Web, shared types & tooling      | Phase 02             | ACTIVE / VERIFICATION PENDING |
-| **Database & Auth**        | Persistent storage schemas, user accounts, and authentication guards  | Phase 03             | **NOT STARTED**               |
-| **Web Dashboard**          | Mobile-first responsive web/PWA dashboard for creator review & edits  | Phase 04             | Planned                       |
-| **OpenShorts Integration** | Automated video slicing, reframing, and vertical rendering engine     | Phase 05             | Planned                       |
-| **Gemini Content Engine**  | Multimodal comedic beat detection, captions, and metadata synthesis   | Phase 06             | Planned                       |
-| **Quality Control**        | Automated QC validation layer (audio, video, duration, compliance)    | Phase 07             | Planned                       |
-| **Social Publishing**      | Modular social platform publishing adapters (YouTube, IG, TikTok)     | Phase 08             | Planned                       |
-| **Analytics & Monitoring** | Ingestion of performance metrics, system health, and alerting         | Phase 09             | Planned                       |
-| **Production Hardening**   | Fault-tolerance, disaster recovery, security audits, and deployment   | Phase 10             | Planned                       |
+| Phase Domain | Responsibility                                                        | Status                            |
+| :----------- | :-------------------------------------------------------------------- | :-------------------------------- |
+| **Phase 00** | Project Initialization & Repository Setup                             | **VERIFIED / LOCKED** (6958dbf)   |
+| **Phase 01** | Architecture & Planning Baseline                                      | **VERIFIED / LOCKED** (42b9d81)   |
+| **Phase 02** | Development Foundation (Monorepo, Fastify, Next.js, Tooling)          | **VERIFIED / LOCKED** (c48ccc5)   |
+| **Phase 03** | Database & Authentication Foundation (PostgreSQL, Drizzle, Sessions)  | **ACTIVE / VERIFICATION PENDING** |
+| **Phase 04** | Web Dashboard (Creator Review, Management UI)                         | **NOT STARTED**                   |
+| **Phase 05** | OpenShorts Integration (Automated Video Slicing & Vertical Rendering) | Planned                           |
+| **Phase 06** | Gemini Content Engine (Multimodal Comedy Beat Detection)              | Planned                           |
+| **Phase 07** | Quality Control Engine (Automated Audio/Video Validation)             | Planned                           |
+| **Phase 08** | Social Publishing Engine (YouTube, Instagram, TikTok Adapters)        | Planned                           |
+| **Phase 09** | Analytics & Monitoring (Performance Ingestion & Alerts)               | Planned                           |
+| **Phase 10** | Production Hardening (Disaster Recovery & High Availability)          | Planned                           |
 
 ---
 
@@ -67,7 +67,16 @@ $$\textbf{ONE STEP} \longrightarrow \textbf{VERIFY} \longrightarrow \textbf{LOCK
 /
 ├── apps/
 │   ├── web/                     # Next.js App Router web foundation
-│   └── api/                     # Fastify micro-service API foundation
+│   └── api/                     # Fastify micro-service API with Drizzle ORM & Auth
+│       ├── drizzle/             # Committed SQL migration files
+│       ├── src/
+│       │   ├── config/          # Environment configuration
+│       │   ├── db/              # Database client, lifecycle, and schemas
+│       │   │   └── schema/      # Drizzle tables (users, sessions)
+│       │   ├── middleware/      # Auth & authorization plugins
+│       │   ├── routes/          # API route handlers (/health, /auth/*)
+│       │   └── services/        # Auth, password, and session services
+│       └── tests/               # Unit, integration, and security tests
 ├── packages/
 │   ├── config/                  # Shared TypeScript presets & Zod environment schemas
 │   ├── types/                   # Shared API contracts & foundational response types
@@ -78,23 +87,11 @@ $$\textbf{ONE STEP} \longrightarrow \textbf{VERIFY} \longrightarrow \textbf{LOCK
 │   ├── development/             # Environment, setup, and structure guides
 │   ├── decisions/               # Architecture Decision Records (ADRs)
 │   └── operations/              # Operational runbooks and deployment guides
-├── scripts/                     # Operational, CI, and maintenance scripts
-├── tests/
-│   ├── integration/             # Multi-package integration tests
-│   └── e2e/                     # End-to-end workflow verification tests
-├── .github/
-│   └── workflows/               # CI/CD automation pipelines
-├── .vscode/                     # Workspace editor settings and extension recommendations
-├── .antigravity/                # Agent runtime instructions and session configurations
 ├── .gitignore                   # Multi-layer exclusion list (secrets, media, caches)
 ├── .env.example                 # Safe environment variable template
-├── .editorconfig                # Universal indentation and encoding standards
 ├── package.json                 # Root monorepo configuration & scripts
 ├── pnpm-workspace.yaml          # Monorepo package boundaries definition
 ├── README.md                    # Project overview and index
-├── PROJECT_CHARTER.md           # Vision, goals, scope, and quality principles
-├── DEVELOPMENT_RULES.md         # Absolute development constraints and operational rules
-├── RESOURCE_EVALUATION.md       # Tooling and provider evaluation matrix
 ├── PHASE_STATUS.md              # Real-time phase milestone tracking
 └── CHANGELOG.md                 # Controlled audit log of project changes
 ```
@@ -106,8 +103,8 @@ $$\textbf{ONE STEP} \longrightarrow \textbf{VERIFY} \longrightarrow \textbf{LOCK
 - **Operating System:** Windows 10/11, macOS, or Linux
 - **Node.js:** `>=20.0.0` (Active LTS recommended; verified on Node.js `v24.15.0`)
 - **Package Manager:** `pnpm` pinned to `12.6.0`
+- **PostgreSQL:** `>=15.0` (for local development database)
 - **Git:** `>=2.40.0`
-- **Editor:** Antigravity IDE or Visual Studio Code
 
 ---
 
@@ -121,7 +118,6 @@ pnpm install
 
 # 2. Start applications in development mode (concurrent)
 pnpm run dev
-# (or: pnpm run development)
 
 # 3. Compile and build all workspace projects
 pnpm run build
@@ -132,7 +128,7 @@ pnpm run typecheck
 # 5. Run ESLint checks across workspace
 pnpm run lint
 
-# 6. Execute automated test suites (Vitest)
+# 6. Execute automated test suites (Vitest across all packages)
 pnpm run test
 
 # 7. Check code and document formatting (Prettier 3.9.9)
@@ -140,43 +136,67 @@ pnpm run format:check
 
 # 8. Auto-format files
 pnpm run format:write
+
+# 9. Database schema migrations
+pnpm run db:generate   # Generate migration SQL from Drizzle schema
+pnpm run db:migrate    # Apply pending migrations to PostgreSQL database
 ```
 
 ---
 
-## 7. Security Principles
+## 7. Database & Authentication Architecture (Phase 03)
 
-1. **Zero Credential Storage in Git:** No passwords, tokens, API keys, or private certificates are ever committed.
-2. **Safe Templates Only:** `.env.example` provides variable keys and inert placeholder descriptions only.
-3. **No `.env` Commits:** `.gitignore` strictly blocks `.env` and all related credential files.
-4. **Boundary Isolation:** Server-side secrets must never leak into client-accessible bundles or packages.
+### Database Foundation
+
+- **ORM:** Drizzle ORM (`drizzle-orm`) with `node-postgres` (`pg`).
+- **Connection Lifecycle:** Centralized `createDbClient` in `apps/api/src/db/client.ts` with explicit connection pool teardown on application shutdown (`onClose` hook).
+- **Migration System:** Schema migrations are generated into `apps/api/drizzle/` and tracked deterministically via `drizzle-kit` and programmatic migration runner `apps/api/src/db/migrate.ts`.
+- **Test Isolation:** Unit and integration tests run deterministically using `pg-mem` and `drizzle-pgmem` without requiring an external PostgreSQL daemon.
+
+### User & Session Model
+
+- **`users` Table:**
+  - `id`: UUID primary key (default `gen_random_uuid()`)
+  - `email`: `varchar(255)` unique, indexed, case-normalized
+  - `password_hash`: `text` bcrypt hash (10 salt rounds)
+  - `role`: `varchar(32)` default `'creator'`
+  - `created_at`, `updated_at`: Timestamps with time zone
+- **`sessions` Table:**
+  - `id`: UUID primary key
+  - `user_id`: Foreign key referencing `users(id)` with `ON DELETE CASCADE`
+  - `token_hash`: `varchar(64)` unique SHA-256 hash of random 32-byte hex token
+  - `expires_at`: Expiration timestamp (default 168 hours / 7 days)
+  - `created_at`: Timestamp with time zone
+
+### Authentication API Endpoints
+
+- `POST /auth/register`: Create user account and active session.
+- `POST /auth/login`: Authenticate email and password, issue new session.
+- `POST /auth/logout`: Revoke active session in database and clear cookie.
+- `GET /auth/me`: Retrieve current authenticated user profile (protected route).
+
+### Session & Token Security
+
+- **Dual Transport:** Sessions can be authenticated via `session_token` cookie or `Authorization: Bearer <token>` header.
+- **Cookie Security:** Cookies are configured with `HttpOnly`, `SameSite: Lax`, and `Secure` (in production).
+- **Zero Plaintext Token Storage:** Database stores only the SHA-256 hash of session tokens.
+- **Zero Password Hash Exposure:** Password hashes are stripped before any API response is sent.
+- **Timing Attack Mitigation:** Authentication verifies a dummy hash on non-existent accounts to eliminate timing differentials.
 
 ---
 
-## 8. Phase-Gated Workflow
+## 8. Environment Variables
 
-Every phase transitions only after comprehensive verification:
+Copy `.env.example` to `.env` before running locally:
 
-```text
-[Phase 00: Project Initialization] (COMPLETED & VERIFIED)
-                ↓
-[Phase 01: Architecture & Planning] (COMPLETED & VERIFIED)
-                ↓
-[Phase 02: Development Foundation] (ACTIVE / VERIFICATION PENDING)
-                ↓
-[Phase 03: Database & Authentication] (NOT STARTED)
-                ↓
-[Phase 04: Web Dashboard]
-                ↓
-[Phase 05: OpenShorts Integration]
-                ↓
-[Phase 06: Gemini Content Engine]
-                ↓
-[Phase 07: Quality Control]
-                ↓
-[Phase 08: Social Publishing]
-                ↓
-[Phase 09: Analytics & Monitoring]
-                ↓
-[Phase 10: Production Hardening]
-```
+| Variable              | Description                                                     | Default / Example                                                  |
+| :-------------------- | :-------------------------------------------------------------- | :----------------------------------------------------------------- |
+| `NODE_ENV`            | Runtime environment (`development`, `production`, `test`)       | `development`                                                      |
+| `PORT`                | Next.js web application port                                    | `3000`                                                             |
+| `NEXT_PUBLIC_API_URL` | Base URL for API calls from browser                             | `http://localhost:4000`                                            |
+| `API_PORT`            | Fastify API server port                                         | `4000`                                                             |
+| `HOST`                | Bind address for API server                                     | `0.0.0.0`                                                          |
+| `CORS_ORIGIN`         | Allowed CORS origin (wildcard prohibited with credentials)      | `http://localhost:3000`                                            |
+| `DATABASE_URL`        | PostgreSQL connection string                                    | `postgresql://postgres:postgres@localhost:5432/dadliesttjokes_dev` |
+| `AUTH_SECRET`         | Secret for cookie signing and session derivation (min 16 chars) | Safe dev placeholder in `.env.example`                             |
+| `SESSION_TTL_HOURS`   | Session time-to-live in hours                                   | `168` (7 days)                                                     |

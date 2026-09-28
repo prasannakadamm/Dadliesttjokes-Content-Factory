@@ -4,47 +4,67 @@
 
 ## Active Phase Summary
 
-### Phase 02 — Development Foundation
+### Phase 03 — Database & Authentication
 
-- **Objective:** Turn the documentation-only repository into a clean, reproducible, developer-ready application foundation establishing pnpm workspace boundaries, minimal Fastify API foundation with process `/health` endpoint, minimal Next.js App Router web foundation, shared config/types packages, centralized tooling, safe environment validation, and real test foundation.
+- **Objective:** Implement PostgreSQL persistence, Drizzle ORM integration, initial migration workflow, user and session data models, secure password handling with bcrypt, deterministic session management, authentication API endpoints (`/auth/register`, `/auth/login`, `/auth/logout`, `/auth/me`), reusable Fastify authentication and authorization middleware, secure environment configuration, comprehensive test coverage, and security audit.
+- **Starting Baseline:** Commit `c48ccc5` (Phase 02 verified and locked baseline).
 - **Current Status:** ACTIVE / VERIFICATION PENDING
-- **Next Phase:** Phase 03 — Database & Authentication _(NOT STARTED)_
+- **Next Phase:** Phase 04 — Web Dashboard _(NOT STARTED)_
 
 ---
 
-## Phase 02 Execution Summary
+## Phase Status Summary
+
+- **Phase 00 — Project Initialization:** VERIFIED / LOCKED (baseline `6958dbf`, reconciliation `56b1e49`)
+- **Phase 01 — Architecture & Planning:** VERIFIED / LOCKED at `42b9d81`
+- **Phase 02 — Development Foundation:** VERIFIED / LOCKED at `c48ccc5`
+- **Phase 03 — Database & Authentication:** ACTIVE / VERIFICATION PENDING
+- **Phase 04 — Web Dashboard:** NOT STARTED
+
+---
+
+## Phase 03 Execution Summary
 
 ### Work Performed
 
-1. **Monorepo Workspace Foundation:** Configured `pnpm-workspace.yaml` with `apps/*`, `packages/*`, and `workers` boundaries; enabled `allowBuilds` for `esbuild` and `unrs-resolver` under pnpm 12.6.0.
-2. **Shared Configuration Package (`packages/config`):**
-   - Configured shared TypeScript presets (`tsconfig.base.json`, `tsconfig.node.json`, `tsconfig.next.json`).
-   - Implemented Zod-based environment variable validation (`apiEnvSchema`, `webEnvSchema`, `validateEnv`).
-   - Added validation refinement explicitly prohibiting wildcard CORS origin (`"*"`) when credentials are enabled.
-   - Added unit test suite proving validation logic and error message generation.
-3. **Shared Types Package (`packages/types`):**
-   - Defined foundational response and contract interfaces (`HealthCheckResponse`, `ApiResponse<T>`, `AppEnvironment`).
-   - Strictly avoided premature domain models (no user/auth/database models).
-4. **API Application Foundation (`apps/api`):**
-   - Established Fastify micro-service foundation in TypeScript.
-   - Implemented process `/health` endpoint (reporting process uptime, timestamp, environment, service name).
-   - Configured secure CORS with explicit origin allowlist; wildcard CORS strictly prohibited at runtime.
-   - Structured error handling with centralized error handler (sanitizing 500 responses in production).
-   - Configured graceful shutdown handling on `SIGINT` and `SIGTERM`.
-   - Added real integration tests verifying `/health` 200 response, 404 handler, error handler, and CORS security.
-5. **Web Application Foundation (`apps/web`):**
-   - Established Next.js 14 App Router foundation in TypeScript.
-   - Created minimal root layout and developer foundation status page.
-   - Confirmed production build (`next build`) compiles static routes with zero warnings.
-   - Added unit test suite for web foundation component.
-6. **Centralized Tooling & Deterministic Scripts:**
-   - Established root scripts: `dev`, `development`, `build`, `typecheck`, `lint`, `test`, `format:write`, `format:check`.
-   - Pinned `prettier@3.9.9` preserved.
-   - Configured ESLint with `@typescript-eslint` across all packages and apps.
-7. **Documentation & Developer Guide Updates:**
-   - Updated `README.md`, `PHASE_STATUS.md`, `CHANGELOG.md`, `docs/development/PROJECT_STRUCTURE.md`, `docs/development/SETUP.md`.
-   - Clearly documented current status as ACTIVE / VERIFICATION PENDING.
-   - Explicitly documented that Phase 03 is NOT STARTED.
+1. **PostgreSQL & Drizzle ORM Foundation:**
+   - Integrated `drizzle-orm` and `pg` database client in `apps/api`.
+   - Created centralized database client lifecycle manager (`createDbClient`, `testDbConnection`, `close`, `isAlive`) in `apps/api/src/db/client.ts`.
+   - Hooked database lifecycle cleanly into Fastify lifecycle with `onClose` pool teardown.
+2. **Schema & Migration Workflow:**
+   - Designed identity schema (`users` table with UUID PK, unique email, password hash, role, timestamps, index on email).
+   - Designed session schema (`sessions` table with UUID PK, user FK cascade, unique SHA-256 token hash, expiration timestamp, timestamps, index on user, token hash, expiration).
+   - Configured `drizzle.config.ts` and generated initial migration `0000_acoustic_namor.sql`.
+   - Built programmatic migration script `apps/api/src/db/migrate.ts` and exposed deterministic `db:generate` and `db:migrate` scripts.
+3. **Password Security:**
+   - Implemented bcrypt-based password hashing (10 salt rounds) and constant-time-safe verification in `apps/api/src/services/password.ts`.
+   - Enforced password strength policy (minimum 8 characters, maximum 128 characters, requires alphanumeric characters).
+   - Implemented dummy verification to mitigate timing-based account enumeration attacks.
+4. **Authentication & Session Services:**
+   - Implemented domain services in `apps/api/src/services/auth.ts`: `registerUser`, `loginUser`, `createSession`, `authenticateSessionToken`, `invalidateSession`, `toUserDto`.
+   - Deliberately sanitizes user representations: password hashes are never exposed through API responses or models.
+   - Generates cryptographically secure 32-byte hex session tokens, stored in DB as SHA-256 hashes (plaintext tokens never stored).
+5. **Authentication API Routes:**
+   - `POST /auth/register`: Validates request body with Zod, checks email uniqueness, hashes password, creates user and active session, sets HttpOnly cookie, returns sanitized user DTO.
+   - `POST /auth/login`: Validates request body, normalizes email, checks credentials safely, creates session, sets HttpOnly cookie, returns sanitized user DTO.
+   - `POST /auth/logout`: Extracts session token from cookie or Authorization header, revokes session in database, clears cookie.
+   - `GET /auth/me`: Protected route returning authenticated user identity.
+6. **Authentication & Authorization Middleware:**
+   - Created Fastify auth plugin `apps/api/src/middleware/auth.ts` with `@fastify/cookie`.
+   - Decorated `fastify.authenticate` pre-handler for protecting routes.
+   - Decorated `fastify.requireRole` pre-handler establishing the authorization foundation.
+   - Safe identity injection into `request.user` and `request.session`.
+7. **Environment Configuration Extension:**
+   - Extended `packages/config/src/env.ts` with `DATABASE_URL`, `AUTH_SECRET` (min 16 chars), `SESSION_TTL_HOURS` (1..8760, default 168).
+   - Prohibits insecure default secret in production environments.
+   - Updated `.env.example` with safe placeholder configuration.
+8. **Automated Testing Suite (49/49 Passing):**
+   - Config tests: Database and auth environment variable validation.
+   - Password service tests: Hashing, verification, strength enforcement, timing mitigation.
+   - Database schema tests: Insertions, unique email constraint enforcement, email index queries, lifecycle.
+   - Auth integration tests: Registration, login, logout, cookie handling, session invalidation, `/auth/me`.
+   - Security audit tests: Password and hash leakage prevention, token hashing verification, enumeration attack mitigation, bypass prevention, CORS credentials security.
+   - Deterministic test isolation via `pg-mem` and `drizzle-pgmem` without requiring external developer database dependencies.
 
 ### Verification Checklist (Antigravity Implementation Verification)
 
@@ -54,24 +74,26 @@
 - [x] Prettier formatting verified (`pnpm run format:check` exit code 0)
 - [x] TypeScript strict typechecking passes across all workspace packages (`pnpm run typecheck` exit code 0)
 - [x] ESLint checks pass across all workspace packages (`pnpm run lint` exit code 0)
-- [x] Automated test suites pass across all packages (`pnpm run test` exit code 0)
+- [x] Automated test suites pass across all packages (`pnpm run test` exit code 0; 49/49 tests pass)
 - [x] Production builds succeed for all projects (`pnpm run build` exit code 0)
-- [x] API `/health` endpoint verified (reports process health only; zero false external health claims)
+- [x] API `/health` endpoint reports process health and optional database probe status
 - [x] Safe environment handling verified with Zod schemas and inert defaults
-- [x] Wildcard CORS with credentials explicitly prohibited and tested
-- [x] Zero hardcoded secrets, credentials, or private keys committed
-- [x] Strict Phase Boundary Audit passed: No database runtime, Drizzle runtime, migrations, auth, queues, workers, or business features
-- [x] Phase 00 and Phase 01 architecture preserved and intact
-- [x] Phase 03 explicitly NOT STARTED
+- [x] Password hashes are never exposed in API responses or logs
+- [x] Session tokens are hashed with SHA-256 before database storage
+- [x] Authentication failures do not reveal account existence
+- [x] Phase 02 CORS security remains intact
+- [x] Phase Boundary Audit passed: No Phase 04 dashboard, Gemini, OpenShorts, queues, workers, or business features implemented
+- [x] Phase 04 explicitly NOT STARTED
 
-### Dependencies Introduced (Phase 02)
+### Dependencies Introduced (Phase 03)
 
-| Package / App     | Dependency                                                                              | Purpose                 | Justification                                     |
-| :---------------- | :-------------------------------------------------------------------------------------- | :---------------------- | :------------------------------------------------ |
-| Root              | `@typescript-eslint/eslint-plugin`, `@typescript-eslint/parser`, `eslint`, `typescript` | Linting & Typechecking  | Root developer tooling                            |
-| `packages/config` | `zod`                                                                                   | Runtime Validation      | Type-safe environment validation across apps      |
-| `apps/api`        | `fastify`, `@fastify/cors`, `dotenv`, `tsx`, `vitest`                                   | API Framework & Testing | Fastify API foundation, CORS, dev runner, testing |
-| `apps/web`        | `next`, `react`, `react-dom`, `eslint-config-next`, `vitest`                            | Web Frontend Framework  | Next.js App Router foundation & testing           |
+| Package / App | Dependency                          | Purpose                          | Justification                                  |
+| :------------ | :---------------------------------- | :------------------------------- | :--------------------------------------------- |
+| `apps/api`    | `drizzle-orm`, `pg`                 | Database ORM & PostgreSQL Driver | Production PostgreSQL persistence              |
+| `apps/api`    | `bcryptjs`, `@types/bcryptjs`       | Password Hashing                 | Secure bcrypt password hashing and salting     |
+| `apps/api`    | `@fastify/cookie`, `fastify-plugin` | Cookie Parsing & Fastify Plugin  | HttpOnly session cookie handling & auth plugin |
+| `apps/api`    | `drizzle-kit`                       | Migration Tooling                | Schema migration generation and tracking       |
+| `apps/api`    | `pg-mem`, `drizzle-pgmem`           | In-Memory PostgreSQL for Vitest  | Deterministic, isolated testing in CI/test     |
 
 ---
 
@@ -79,11 +101,11 @@
 
 | Phase        | Title                     | Status                            |
 | :----------- | :------------------------ | :-------------------------------- |
-| **Phase 00** | Project Initialization    | **COMPLETED & VERIFIED**          |
-| **Phase 01** | Architecture & Planning   | **COMPLETED & VERIFIED**          |
-| **Phase 02** | Development Foundation    | **ACTIVE / VERIFICATION PENDING** |
-| **Phase 03** | Database & Authentication | **NOT STARTED**                   |
-| **Phase 04** | Web Dashboard             | Planned                           |
+| **Phase 00** | Project Initialization    | **VERIFIED / LOCKED** (6958dbf)   |
+| **Phase 01** | Architecture & Planning   | **VERIFIED / LOCKED** (42b9d81)   |
+| **Phase 02** | Development Foundation    | **VERIFIED / LOCKED** (c48ccc5)   |
+| **Phase 03** | Database & Authentication | **ACTIVE / VERIFICATION PENDING** |
+| **Phase 04** | Web Dashboard             | **NOT STARTED**                   |
 | **Phase 05** | OpenShorts Integration    | Planned                           |
 | **Phase 06** | Gemini Content Engine     | Planned                           |
 | **Phase 07** | Quality Control           | Planned                           |

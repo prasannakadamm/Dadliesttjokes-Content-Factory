@@ -12,7 +12,9 @@
     "lint": "pnpm --recursive run lint",
     "test": "pnpm --recursive run test",
     "format:check": "prettier --check .",
-    "format:write": "prettier --write ."
+    "format:write": "prettier --write .",
+    "db:generate": "pnpm --filter @dadliesttjokes/api run db:generate",
+    "db:migrate": "pnpm --filter @dadliesttjokes/api run db:migrate"
   },
   "devDependencies": {
     "@typescript-eslint/eslint-plugin": "^7.18.0",

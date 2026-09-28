@@ -4,23 +4,51 @@ export const nodeEnvSchema = z.enum(['development', 'test', 'production']).defau
 
 export type NodeEnv = z.infer<typeof nodeEnvSchema>;
 
-export const apiEnvSchema = z.object({
-  NODE_ENV: nodeEnvSchema,
-  PORT: z
-    .preprocess(
-      (val) => (val === undefined || val === '' ? undefined : Number(val)),
-      z.number().int().min(1).max(65535).optional(),
-    )
-    .default(4000),
-  HOST: z.string().default('0.0.0.0'),
-  CORS_ORIGIN: z
-    .string()
-    .default('http://localhost:3000')
-    .refine((val) => val !== '*', {
-      message: 'Wildcard CORS origin ("*") is prohibited when credentials are enabled.',
-    }),
-  LOG_LEVEL: z.enum(['fatal', 'error', 'warn', 'info', 'debug', 'trace', 'silent']).optional(),
-});
+export const apiEnvSchema = z
+  .object({
+    NODE_ENV: nodeEnvSchema,
+    PORT: z
+      .preprocess(
+        (val) => (val === undefined || val === '' ? undefined : Number(val)),
+        z.number().int().min(1).max(65535).optional(),
+      )
+      .default(4000),
+    HOST: z.string().default('0.0.0.0'),
+    CORS_ORIGIN: z
+      .string()
+      .default('http://localhost:3000')
+      .refine((val) => val !== '*', {
+        message: 'Wildcard CORS origin ("*") is prohibited when credentials are enabled.',
+      }),
+    DATABASE_URL: z
+      .string()
+      .refine((val) => val.startsWith('postgres://') || val.startsWith('postgresql://'), {
+        message: 'DATABASE_URL must be a valid postgresql:// or postgres:// connection string.',
+      })
+      .default('postgresql://postgres:postgres@localhost:5432/dadliesttjokes_db'),
+    AUTH_SECRET: z
+      .string()
+      .min(16, { message: 'AUTH_SECRET must be at least 16 characters.' })
+      .default('insecure-dev-auth-secret-minimum-16-characters-long'),
+    SESSION_TTL_HOURS: z
+      .preprocess(
+        (val) => (val === undefined || val === '' ? undefined : Number(val)),
+        z.number().int().min(1).max(8760).optional(),
+      )
+      .default(168), // 7 days
+    LOG_LEVEL: z.enum(['fatal', 'error', 'warn', 'info', 'debug', 'trace', 'silent']).optional(),
+  })
+  .superRefine((data, ctx) => {
+    if (data.NODE_ENV === 'production') {
+      if (data.AUTH_SECRET.includes('insecure-dev')) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          path: ['AUTH_SECRET'],
+          message: 'Default insecure AUTH_SECRET is strictly prohibited in production environment.',
+        });
+      }
+    }
+  });
 
 export type ApiEnv = z.infer<typeof apiEnvSchema>;
 
