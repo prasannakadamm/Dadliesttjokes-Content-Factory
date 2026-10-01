@@ -6,6 +6,7 @@ import { createDbClient, type DbClient } from './db/client.js';
 import { authPlugin } from './middleware/auth.js';
 import { healthRoutes } from './routes/health.js';
 import { authRoutes } from './routes/auth.js';
+import { videoRoutes } from './routes/video.js';
 
 export interface BuildAppOptions {
   config: ApiEnv;
@@ -53,6 +54,7 @@ export function buildApp(options: BuildAppOptions): FastifyInstance {
   // Register Foundation Routes
   app.register(healthRoutes, { config, dbClient });
   app.register(authRoutes, { db: dbClient.db, config });
+  app.register(videoRoutes, { prefix: '/video', db: dbClient.db });
 
   // Gracefully close database connection pool when app closes
   app.addHook('onClose', async () => {

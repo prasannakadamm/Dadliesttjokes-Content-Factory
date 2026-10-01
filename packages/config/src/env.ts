@@ -42,6 +42,9 @@ export const apiEnvSchema = z
       )
       .default(168), // 7 days
     LOG_LEVEL: z.enum(['fatal', 'error', 'warn', 'info', 'debug', 'trace', 'silent']).optional(),
+    OPENSHORTS_API_KEY: z.string().optional(),
+    OPENSHORTS_WEBHOOK_SECRET: z.string().optional(),
+    OPENSHORTS_API_URL: z.string().url().default('https://api.openshorts.app'),
   })
   .superRefine((data, ctx) => {
     if (data.NODE_ENV === 'production') {

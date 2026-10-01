@@ -86,6 +86,7 @@ describe('API Foundation - App Error Handling and Configuration', () => {
           DATABASE_URL: 'postgresql://postgres:postgres@localhost:5432/test',
           AUTH_SECRET: 'test_auth_secret_minimum_16_chars',
           SESSION_TTL_HOURS: 168,
+          OPENSHORTS_API_URL: 'https://api.openshorts.app',
         },
       }),
     ).toThrow(/Unsafe wildcard CORS configuration/);
