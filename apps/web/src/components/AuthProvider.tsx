@@ -14,7 +14,7 @@ export interface User {
 interface AuthContextType {
   user: User | null;
   loading: boolean;
-  login: (token: string, user: User) => void;
+  login: (user: User) => void;
   logout: () => Promise<void>;
   checkSession: () => Promise<void>;
 }
@@ -42,7 +42,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     checkSession();
   }, []);
 
-  const login = (_token: string, user: User) => {
+  const login = (user: User) => {
     setUser(user);
     router.push('/dashboard');
   };

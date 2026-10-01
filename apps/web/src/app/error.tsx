@@ -10,7 +10,11 @@ export default function ErrorPage({
   reset: () => void;
 }) {
   useEffect(() => {
-    console.error(error);
+    // Safely log error without exposing raw error object to the client console
+    console.error(`Error digest: ${error.digest || 'N/A'}`);
+    if (process.env.NODE_ENV !== 'production') {
+      console.error(`Error message: ${error.message}`);
+    }
   }, [error]);
 
   return (

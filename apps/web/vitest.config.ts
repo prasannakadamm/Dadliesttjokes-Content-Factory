@@ -5,4 +5,7 @@ export default defineConfig({
     environment: 'jsdom',
     globals: true,
   },
+  esbuild: {
+    jsxInject: `import React from 'react'`,
+  },
 });

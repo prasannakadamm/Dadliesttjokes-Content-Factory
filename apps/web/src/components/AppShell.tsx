@@ -28,6 +28,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
             <div
               className="fixed inset-0 bg-black/80"
               onClick={() => setMobileMenuOpen(false)}
+              aria-hidden="true"
             ></div>
             <div className="relative flex w-full max-w-xs flex-1 flex-col bg-card pt-5 pb-4">
               <div className="flex items-center px-4">
@@ -36,8 +37,9 @@ export function AppShell({ children }: { children: React.ReactNode }) {
                   type="button"
                   className="ml-auto flex h-10 w-10 items-center justify-center rounded-md hover:bg-border"
                   onClick={() => setMobileMenuOpen(false)}
+                  aria-label="Close sidebar"
                 >
-                  <span className="text-white">✕</span>
+                  <span aria-hidden="true" className="text-white">✕</span>
                 </button>
               </div>
               <div className="mt-8 flex flex-1 flex-col overflow-y-auto">
@@ -116,8 +118,10 @@ export function AppShell({ children }: { children: React.ReactNode }) {
               type="button"
               className="border-r border-border pr-4 text-muted lg:hidden"
               onClick={() => setMobileMenuOpen(true)}
+              aria-label="Open sidebar"
+              aria-expanded={mobileMenuOpen}
             >
-              <span className="text-xl">☰</span>
+              <span aria-hidden="true" className="text-xl">☰</span>
             </button>
             <div className="flex flex-1 justify-end px-4 lg:px-0">
               <div className="flex items-center gap-4">

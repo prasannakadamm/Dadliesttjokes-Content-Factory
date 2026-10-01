@@ -23,7 +23,7 @@ export default function RegisterPage() {
         body: JSON.stringify({ email, password }),
       });
       // Session cookie is handled by the browser
-      login('mock-token-not-used-in-client', response.user);
+      login(response.user);
     } catch (err) {
       if (err instanceof ApiRequestError) {
         setError(err.message);
