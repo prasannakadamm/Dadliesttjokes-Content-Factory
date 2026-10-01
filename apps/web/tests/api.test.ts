@@ -3,7 +3,7 @@ import { fetchApi, ApiRequestError } from '../src/lib/api';
 
 describe('Security & API Client', () => {
   let originalFetch: typeof global.fetch;
-  
+
   beforeEach(() => {
     originalFetch = global.fetch;
     global.fetch = vi.fn();
@@ -16,7 +16,7 @@ describe('Security & API Client', () => {
 
   it('API requests always use credentials/cookies', async () => {
     vi.mocked(global.fetch).mockResolvedValueOnce(
-      new Response(JSON.stringify({ success: true, data: { ok: true } }), { status: 200 })
+      new Response(JSON.stringify({ success: true, data: { ok: true } }), { status: 200 }),
     );
 
     await fetchApi('/test-endpoint');
@@ -25,13 +25,13 @@ describe('Security & API Client', () => {
       expect.stringContaining('/test-endpoint'),
       expect.objectContaining({
         credentials: 'include',
-      })
+      }),
     );
   });
 
   it('no token is placed in URL parameters by default', async () => {
     vi.mocked(global.fetch).mockResolvedValueOnce(
-      new Response(JSON.stringify({ success: true, data: { ok: true } }), { status: 200 })
+      new Response(JSON.stringify({ success: true, data: { ok: true } }), { status: 200 }),
     );
 
     await fetchApi('/auth/me');
@@ -43,9 +43,15 @@ describe('Security & API Client', () => {
 
   it('safe auth error handling for bad responses', async () => {
     vi.mocked(global.fetch).mockResolvedValueOnce(
-      new Response(JSON.stringify({ success: false, error: { code: 'UNAUTHORIZED', message: 'Not logged in' } }), {
-        status: 401,
-      })
+      new Response(
+        JSON.stringify({
+          success: false,
+          error: { code: 'UNAUTHORIZED', message: 'Not logged in' },
+        }),
+        {
+          status: 401,
+        },
+      ),
     );
 
     await expect(fetchApi('/auth/me')).rejects.toThrow(ApiRequestError);

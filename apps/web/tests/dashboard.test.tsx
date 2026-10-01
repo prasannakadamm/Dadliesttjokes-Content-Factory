@@ -33,7 +33,7 @@ describe('Dashboard & Protected Routes', () => {
         <AuthGuard>
           <div>Protected Content</div>
         </AuthGuard>
-      </AuthProvider>
+      </AuthProvider>,
     );
 
     await waitFor(() => {
@@ -53,7 +53,7 @@ describe('Dashboard & Protected Routes', () => {
         <AuthGuard>
           <div>Protected Content</div>
         </AuthGuard>
-      </AuthProvider>
+      </AuthProvider>,
     );
 
     await waitFor(() => {
@@ -72,7 +72,7 @@ describe('Dashboard & Protected Routes', () => {
         <AuthGuard>
           <DashboardPage />
         </AuthGuard>
-      </AuthProvider>
+      </AuthProvider>,
     );
 
     await waitFor(() => {
@@ -83,7 +83,10 @@ describe('Dashboard & Protected Routes', () => {
 
   it('profile rendering', async () => {
     vi.mocked(fetchApi).mockImplementation(async (url) => {
-      if (url === '/auth/me') return { user: { id: '1', email: 'test@example.com', role: 'user', createdAt: '2024-01-01' } };
+      if (url === '/auth/me')
+        return {
+          user: { id: '1', email: 'test@example.com', role: 'user', createdAt: '2024-01-01' },
+        };
       return {};
     });
 
@@ -92,7 +95,7 @@ describe('Dashboard & Protected Routes', () => {
         <AuthGuard>
           <ProfilePage />
         </AuthGuard>
-      </AuthProvider>
+      </AuthProvider>,
     );
 
     await waitFor(() => {
@@ -114,7 +117,7 @@ describe('Dashboard & Protected Routes', () => {
         <AppShell>
           <div data-testid="content-div">Content</div>
         </AppShell>
-      </AuthProvider>
+      </AuthProvider>,
     );
 
     await waitFor(() => {
@@ -126,7 +129,10 @@ describe('Dashboard & Protected Routes', () => {
     fireEvent.click(logoutButtons[0]);
 
     await waitFor(() => {
-      expect(fetchApi).toHaveBeenCalledWith('/auth/logout', expect.objectContaining({ method: 'POST' }));
+      expect(fetchApi).toHaveBeenCalledWith(
+        '/auth/logout',
+        expect.objectContaining({ method: 'POST' }),
+      );
       expect(mockPush).toHaveBeenCalledWith('/login');
     });
   });
@@ -142,7 +148,7 @@ describe('Dashboard & Protected Routes', () => {
         <AppShell>
           <div>Content</div>
         </AppShell>
-      </AuthProvider>
+      </AuthProvider>,
     );
 
     await waitFor(() => {

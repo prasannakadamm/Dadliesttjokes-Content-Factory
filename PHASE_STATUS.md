@@ -65,12 +65,12 @@
 
 ### Dependencies Introduced (Phase 04)
 
-| Package / App | Dependency                          | Purpose                          | Justification                                  |
-| :------------ | :---------------------------------- | :------------------------------- | :--------------------------------------------- |
-| `apps/web`    | `tailwindcss`, `@tailwindcss/postcss`, `postcss` | UI Styling Framework           | Modern utility-first CSS framework (v4) for web application styling |
-| `apps/web`    | `lucide-react`                      | Iconography Library              | Scalable vector icons for dashboard UI and navigation |
-| `apps/web`    | `clsx`, `tailwind-merge`            | Classname Utilities              | Composing dynamic class names for UI components safely |
-| `apps/web`    | `@testing-library/react`, `@testing-library/dom`, `@vitejs/plugin-react`, `jsdom` | React Testing Utilities        | Required for automated testing of React components in Vitest |
+| Package / App | Dependency                                                                        | Purpose                 | Justification                                                       |
+| :------------ | :-------------------------------------------------------------------------------- | :---------------------- | :------------------------------------------------------------------ |
+| `apps/web`    | `tailwindcss`, `@tailwindcss/postcss`, `postcss`                                  | UI Styling Framework    | Modern utility-first CSS framework (v4) for web application styling |
+| `apps/web`    | `lucide-react`                                                                    | Iconography Library     | Scalable vector icons for dashboard UI and navigation               |
+| `apps/web`    | `clsx`, `tailwind-merge`                                                          | Classname Utilities     | Composing dynamic class names for UI components safely              |
+| `apps/web`    | `@testing-library/react`, `@testing-library/dom`, `@vitejs/plugin-react`, `jsdom` | React Testing Utilities | Required for automated testing of React components in Vitest        |
 
 ---
 
@@ -83,7 +83,7 @@
 | **Phase 02** | Development Foundation    | **VERIFIED / LOCKED** (c48ccc5)   |
 | **Phase 03** | Database & Authentication | **VERIFIED / LOCKED** (900a8e9)   |
 | **Phase 04** | Web Dashboard             | **ACTIVE / VERIFICATION PENDING** |
-| **Phase 05** | OpenShorts Integration    | Planned                           |
+| **Phase 05** | OpenShorts Integration    | NOT STARTED                       |
 | **Phase 06** | Gemini Content Engine     | Planned                           |
 | **Phase 07** | Quality Control           | Planned                           |
 | **Phase 08** | Social Publishing         | Planned                           |

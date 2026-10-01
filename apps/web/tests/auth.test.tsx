@@ -40,10 +40,12 @@ describe('Authentication Flow & Security', () => {
     render(
       <AuthProvider>
         <LoginPage />
-      </AuthProvider>
+      </AuthProvider>,
     );
 
-    fireEvent.change(screen.getByLabelText(/Email address/i), { target: { value: 'test@example.com' } });
+    fireEvent.change(screen.getByLabelText(/Email address/i), {
+      target: { value: 'test@example.com' },
+    });
     fireEvent.change(screen.getByLabelText(/Password/i), { target: { value: 'Password123!' } });
     fireEvent.click(screen.getByRole('button', { name: /Sign in/i }));
 
@@ -68,12 +70,16 @@ describe('Authentication Flow & Security', () => {
     render(
       <AuthProvider>
         <LoginPage />
-      </AuthProvider>
+      </AuthProvider>,
     );
 
-    fireEvent.change(screen.getByLabelText(/Email address/i), { target: { value: 'test@example.com' } });
+    fireEvent.change(screen.getByLabelText(/Email address/i), {
+      target: { value: 'test@example.com' },
+    });
     fireEvent.change(screen.getByLabelText(/Password/i), { target: { value: 'Password123!' } });
-    fireEvent.submit(screen.getByRole('button', { name: /Sign in/i }).closest('form') as HTMLFormElement);
+    fireEvent.submit(
+      screen.getByRole('button', { name: /Sign in/i }).closest('form') as HTMLFormElement,
+    );
 
     await waitFor(() => {
       expect(mockPush).toHaveBeenCalledWith('/dashboard');
@@ -81,7 +87,10 @@ describe('Authentication Flow & Security', () => {
 
     // The fetchApi is called directly with email/password, returning just { user }.
     // No mock token is handled by the client.
-    expect(fetchApi).toHaveBeenCalledWith('/auth/login', expect.objectContaining({ method: 'POST' }));
+    expect(fetchApi).toHaveBeenCalledWith(
+      '/auth/login',
+      expect.objectContaining({ method: 'POST' }),
+    );
   });
 
   it('login API failure displays error', async () => {
@@ -96,10 +105,12 @@ describe('Authentication Flow & Security', () => {
     render(
       <AuthProvider>
         <LoginPage />
-      </AuthProvider>
+      </AuthProvider>,
     );
 
-    fireEvent.change(screen.getByLabelText(/Email address/i), { target: { value: 'test@example.com' } });
+    fireEvent.change(screen.getByLabelText(/Email address/i), {
+      target: { value: 'test@example.com' },
+    });
     fireEvent.change(screen.getByLabelText(/Password/i), { target: { value: 'wrongpass' } });
     fireEvent.click(screen.getByRole('button', { name: /Sign in/i }));
 
@@ -119,10 +130,12 @@ describe('Authentication Flow & Security', () => {
     render(
       <AuthProvider>
         <RegisterPage />
-      </AuthProvider>
+      </AuthProvider>,
     );
 
-    fireEvent.change(screen.getByLabelText(/Email address/i), { target: { value: 'new@example.com' } });
+    fireEvent.change(screen.getByLabelText(/Email address/i), {
+      target: { value: 'new@example.com' },
+    });
     fireEvent.change(screen.getByLabelText(/Password/i), { target: { value: 'Password123!' } });
     fireEvent.click(screen.getByRole('button', { name: /Create account/i }));
 
@@ -143,12 +156,16 @@ describe('Authentication Flow & Security', () => {
     render(
       <AuthProvider>
         <RegisterPage />
-      </AuthProvider>
+      </AuthProvider>,
     );
 
-    fireEvent.change(screen.getByLabelText(/Email address/i), { target: { value: 'test@example.com' } });
+    fireEvent.change(screen.getByLabelText(/Email address/i), {
+      target: { value: 'test@example.com' },
+    });
     fireEvent.change(screen.getByLabelText(/Password/i), { target: { value: 'Password123!' } });
-    fireEvent.submit(screen.getByRole('button', { name: /Create account/i }).closest('form') as HTMLFormElement);
+    fireEvent.submit(
+      screen.getByRole('button', { name: /Create account/i }).closest('form') as HTMLFormElement,
+    );
 
     await waitFor(() => {
       expect(screen.getByText('Email already in use')).toBeDefined();

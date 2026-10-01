@@ -39,7 +39,9 @@ export function AppShell({ children }: { children: React.ReactNode }) {
                   onClick={() => setMobileMenuOpen(false)}
                   aria-label="Close sidebar"
                 >
-                  <span aria-hidden="true" className="text-white">✕</span>
+                  <span aria-hidden="true" className="text-white">
+                    ✕
+                  </span>
                 </button>
               </div>
               <div className="mt-8 flex flex-1 flex-col overflow-y-auto">
@@ -121,7 +123,9 @@ export function AppShell({ children }: { children: React.ReactNode }) {
               aria-label="Open sidebar"
               aria-expanded={mobileMenuOpen}
             >
-              <span aria-hidden="true" className="text-xl">☰</span>
+              <span aria-hidden="true" className="text-xl">
+                ☰
+              </span>
             </button>
             <div className="flex flex-1 justify-end px-4 lg:px-0">
               <div className="flex items-center gap-4">

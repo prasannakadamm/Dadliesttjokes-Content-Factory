@@ -7,6 +7,38 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [0.4.0] - Phase 04 Web Dashboard
+
+### Added
+
+- **Next.js App Router Dashboard Foundation:**
+  - Integrated Tailwind CSS v4 and established a custom design system with defined tokens for colors, typography, and interactive states.
+  - Implemented a responsive `AppShell` featuring a desktop sidebar and a slide-out mobile navigation menu.
+  - Developed a suite of reusable UI components tailored for the creator experience.
+- **Authentication & User Flows:**
+  - Built comprehensive, unauthenticated layouts for `/login` and `/register` pages complete with form validation, loading indicators, and robust error handling.
+  - Created a protected `/dashboard` acting as the primary hub for authenticated users.
+  - Developed the `/dashboard/profile` view to render authenticated user data fetched seamlessly from the `/auth/me` endpoint.
+- **Frontend Security & API Integration:**
+  - Engineered a reusable `fetchApi` client ensuring all API interactions securely include HttpOnly session cookies via `credentials: 'include'`.
+  - Implemented a robust React Context (`AuthProvider`) and a higher-order component (`AuthGuard`) to manage application-wide session state and protect specific routes.
+  - Verified no raw authentication tokens are ever stored in `localStorage` or `sessionStorage`.
+- **Testing, Stability & Accessibility:**
+  - Established the `vitest` + `jsdom` testing framework for React component validation.
+  - Devised automated test suites resolving complex challenges like mocked API routing, context injection, and precise `submit` events across the authentication flows.
+  - Enhanced mobile navigation toggle accessibility within `AppShell` via standard ARIA attributes (`aria-label`, `aria-hidden`, `aria-expanded`).
+- **Dependencies Introduced:**
+  - `tailwindcss`, `@tailwindcss/postcss`, `postcss`, `clsx`, `tailwind-merge` for modern utility-first CSS styling and dynamic class name composition.
+  - `lucide-react` for scalable dashboard vector iconography.
+  - `@testing-library/react`, `@testing-library/dom`, `@vitejs/plugin-react`, `jsdom` for automated, reliable component testing.
+
+### Changed
+
+- **Error Handling:**
+  - Refactored `apps/web/src/app/error.tsx` to safely extract and present error digests/messages to clients while suppressing raw object leakage.
+- **Phase Status:** Phase 04 implementation is complete and submitted for independent verification. Phase 04 status remains ACTIVE / VERIFICATION PENDING. Phase 05 is NOT STARTED.
+- **Documentation:** Updated `README.md` and `PHASE_STATUS.md` to reflect the active dashboard implementation.
+
 ## [0.3.0] - Phase 03 Database & Authentication
 
 ### Added
