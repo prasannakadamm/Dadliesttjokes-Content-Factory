@@ -117,53 +117,64 @@ export class VideoProcessingService {
   }
 
   private async updateJobFromProviderStatus(jobId: string, statusResult: any) {
+    const [job] = await this.db.select().from(videoJobs).where(eq(videoJobs.id, jobId));
+    if (!job) return;
+
+    // Enforce valid state transitions
+    const validTransitions: Record<string, string[]> = {
+      queued: ['processing', 'completed', 'failed', 'canceled'],
+      processing: ['completed', 'failed', 'canceled'],
+      completed: [],
+      failed: [],
+      canceled: []
+    };
+
+    if (job.status !== statusResult.status && !validTransitions[job.status]?.includes(statusResult.status)) {
+      // Invalid transition, ignore to enforce centralized policy
+      return;
+    }
+
     const now = new Date();
     const updateData: any = {
       status: statusResult.status,
       updatedAt: now,
     };
 
-    if (statusResult.status === 'processing') {
-      updateData.startedAt = now;
-    } else if (statusResult.status === 'completed' || statusResult.status === 'failed' || statusResult.status === 'canceled') {
-      updateData.completedAt = now;
-      if (statusResult.error) {
-        updateData.errorDetails = statusResult.error;
+    if (job.status !== statusResult.status) {
+      if (statusResult.status === 'processing') {
+        updateData.startedAt = now;
+      } else if (statusResult.status === 'completed' || statusResult.status === 'failed' || statusResult.status === 'canceled') {
+        updateData.completedAt = now;
+        if (statusResult.error) {
+          updateData.errorDetails = statusResult.error;
+        }
       }
     }
 
     await this.db.transaction(async (tx: any) => {
-      await tx.update(videoJobs)
-        .set(updateData)
-        .where(eq(videoJobs.id, jobId));
+      // Only update if data changed
+      if (Object.keys(updateData).length > 2 || updateData.status !== job.status) {
+        await tx.update(videoJobs)
+          .set(updateData)
+          .where(eq(videoJobs.id, jobId));
+      }
 
       if (statusResult.status === 'completed' && statusResult.clips && statusResult.clips.length > 0) {
         for (const clip of statusResult.clips) {
-          // Check if clip exists
-          const [existing] = await tx
-            .select()
-            .from(videoClips)
-            .where(and(
-              eq(videoClips.jobId, jobId),
-              eq(videoClips.providerClipId, clip.providerClipId)
-            ));
-
-          if (!existing) {
-            await tx.insert(videoClips).values({
-              jobId,
-              providerClipId: clip.providerClipId,
-              title: clip.title,
-              durationSeconds: clip.durationSeconds,
-              videoUrl: clip.videoUrl,
-              thumbnailUrl: clip.thumbnailUrl,
-            });
-          }
+          await tx.insert(videoClips).values({
+            jobId,
+            providerClipId: clip.providerClipId,
+            title: clip.title,
+            durationSeconds: clip.durationSeconds,
+            videoUrl: clip.videoUrl,
+            thumbnailUrl: clip.thumbnailUrl,
+          }).onConflictDoNothing({ target: [videoClips.jobId, videoClips.providerClipId] });
         }
       }
     });
   }
 
-  async handleWebhook(payload: any, signature: string | undefined): Promise<void> {
+  async handleWebhook(payload: any): Promise<void> {
     const providerJobId = payload.job_id || payload.id;
     
     if (!providerJobId) {
@@ -179,9 +190,18 @@ export class VideoProcessingService {
       throw new Error(`Job with provider ID ${providerJobId} not found`);
     }
 
-    // Verify signature if provided by provider
-    if (job.webhookSecret && signature) {
-      // signature check implementation would go here
+    // Verify secret if provided by provider
+    if (job.webhookSecret) {
+      if (!payload.webhook_secret || typeof payload.webhook_secret !== 'string') {
+        throw new Error('Webhook authentication failed: missing secret in payload');
+      }
+      
+      const expectedBuffer = Buffer.from(job.webhookSecret, 'utf8');
+      const providedBuffer = Buffer.from(payload.webhook_secret, 'utf8');
+      
+      if (expectedBuffer.length !== providedBuffer.length || !crypto.timingSafeEqual(expectedBuffer, providedBuffer)) {
+        throw new Error('Webhook authentication failed: invalid secret');
+      }
     }
 
     try {

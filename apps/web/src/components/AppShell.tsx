@@ -9,7 +9,7 @@ import { AuthGuard } from './AuthGuard';
 const navigation = [
   { name: 'Dashboard', href: '/dashboard', active: true },
   { name: 'Content', href: '/dashboard/content', active: false },
-  { name: 'Videos', href: '/dashboard/videos', active: false },
+  { name: 'Videos', href: '/dashboard/videos', active: true },
   { name: 'Publishing', href: '/dashboard/publishing', active: false },
   { name: 'Analytics', href: '/dashboard/analytics', active: false },
 ];

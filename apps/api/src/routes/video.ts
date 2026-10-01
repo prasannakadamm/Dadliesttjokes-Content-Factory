@@ -3,21 +3,25 @@ import { z } from 'zod';
 import { VideoProcessingService } from '../services/video/service.js';
 import type { AppDatabase } from '../db/client.js';
 
+import type { ApiEnv } from '@dadliesttjokes/config';
+
 const submitJobSchema = z.object({
   sourceUrl: z.string().url(),
 });
 
 export interface VideoRoutesOptions {
   db: AppDatabase;
+  config: ApiEnv;
 }
 
 export const videoRoutes: FastifyPluginAsync<VideoRoutesOptions> = async (fastify, opts) => {
+  const { db, config } = opts;
   const videoService = new VideoProcessingService(
-    opts.db,
-    process.env.OPENSHORTS_API_KEY,
-    process.env.OPENSHORTS_API_URL,
-    process.env.OPENSHORTS_WEBHOOK_URL || 'https://api.example.com/api/video/webhook',
-    process.env.OPENSHORTS_WEBHOOK_SECRET
+    db,
+    config.OPENSHORTS_API_KEY,
+    config.OPENSHORTS_API_URL,
+    config.OPENSHORTS_WEBHOOK_URL,
+    config.OPENSHORTS_WEBHOOK_SECRET
   );
 
   fastify.post<{ Body: { sourceUrl: string } }>(
@@ -125,10 +129,9 @@ export const videoRoutes: FastifyPluginAsync<VideoRoutesOptions> = async (fastif
     async (request, reply) => {
       // The webhook comes from OpenShorts
       const payload = request.body;
-      const signature = request.headers['x-openshorts-signature'] as string | undefined;
 
       try {
-        await videoService.handleWebhook(payload, signature);
+        await videoService.handleWebhook(payload);
         return reply.status(200).send({ success: true });
       } catch (error) {
         request.log.error(error, 'Webhook handling failed');

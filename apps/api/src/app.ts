@@ -54,7 +54,7 @@ export function buildApp(options: BuildAppOptions): FastifyInstance {
   // Register Foundation Routes
   app.register(healthRoutes, { config, dbClient });
   app.register(authRoutes, { db: dbClient.db, config });
-  app.register(videoRoutes, { prefix: '/video', db: dbClient.db });
+  app.register(videoRoutes, { prefix: '/video', db: dbClient.db, config });
 
   // Gracefully close database connection pool when app closes
   app.addHook('onClose', async () => {

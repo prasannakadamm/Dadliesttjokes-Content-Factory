@@ -45,6 +45,7 @@ export const apiEnvSchema = z
     OPENSHORTS_API_KEY: z.string().optional(),
     OPENSHORTS_WEBHOOK_SECRET: z.string().optional(),
     OPENSHORTS_API_URL: z.string().url().default('https://api.openshorts.app'),
+    OPENSHORTS_WEBHOOK_URL: z.string().url().optional(),
   })
   .superRefine((data, ctx) => {
     if (data.NODE_ENV === 'production') {
