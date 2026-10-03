@@ -229,5 +229,34 @@ describe('Video Processing API (Phase 05)', () => {
       });
       expect(hookRes.statusCode).toBe(400);
     });
+    it('rejects modified body with valid original signature', async () => {
+      vi.mocked(fetch).mockResolvedValueOnce({
+        ok: true,
+        json: () => Promise.resolve({ job_id: 'provider_1010' }),
+      } as Response);
+      const createRes = await app.inject({
+        method: 'POST',
+        url: '/video/jobs',
+        cookies: { session_token: user1Token },
+        payload: { sourceUrl: 'https://youtube.com/watch' },
+      });
+      const jobId = JSON.parse(createRes.payload).data.jobId;
+
+      const [job] = await testDb.db.select().from(videoJobs).where(eq(videoJobs.id, jobId));
+      const secret = job!.webhookSecret!;
+
+      const rawBody = '{"job_id":"provider_1010"}';
+      const signature = `sha256=${crypto.createHmac('sha256', secret).update(rawBody).digest('hex')}`;
+
+      // Modify the body to simulate mismatch
+      const modifiedBody = '{"job_id":"provider_1010", "hacked":true}';
+      const hookRes = await app.inject({
+        method: 'POST',
+        url: '/video/webhook',
+        headers: { 'x-openshorts-signature': signature, 'content-type': 'application/json' },
+        body: modifiedBody, // send the modified body with the signature of the non-reformatted body
+      });
+      expect(hookRes.statusCode).toBe(400);
+    });
   });
 });

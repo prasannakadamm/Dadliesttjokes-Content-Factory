@@ -108,8 +108,7 @@ export class VideoProcessingService {
       await this.updateJobFromProviderStatus(job.id, statusResult);
     } catch (error) {
       if (error instanceof VideoProcessorError) {
-        // Log it, but maybe don't fail the job immediately just because status check failed once
-        console.error(`Failed to sync job ${jobId}:`, error.message);
+        // Silently swallow sync failure to avoid failing the job on temporary issues
       } else {
         throw error;
       }
@@ -193,10 +192,10 @@ export class VideoProcessingService {
     signature?: string,
     rawBody?: string,
   ): Promise<void> {
-    const providerJobId = (payload.job_id || payload.id) as string | undefined;
+    const providerJobId = payload.job_id as string | undefined;
 
     if (!providerJobId) {
-      throw new Error('Invalid webhook payload: missing job identifier');
+      throw new Error('WEBHOOK_INVALID');
     }
 
     const [job] = await this.db
@@ -205,16 +204,16 @@ export class VideoProcessingService {
       .where(eq(videoJobs.providerJobId, providerJobId));
 
     if (!job) {
-      throw new Error(`Job with provider ID ${providerJobId} not found`);
+      throw new Error('WEBHOOK_INVALID');
     }
 
     // Verify secret if provided by provider
     if (job.webhookSecret) {
-      if (!signature) {
-        throw new Error('Webhook authentication failed: missing signature header');
+      if (!signature || !rawBody) {
+        throw new Error('WEBHOOK_INVALID');
       }
 
-      const bodyToHash = rawBody || JSON.stringify(payload);
+      const bodyToHash = rawBody;
       const hmacHex = crypto
         .createHmac('sha256', job.webhookSecret)
         .update(bodyToHash)
@@ -228,7 +227,7 @@ export class VideoProcessingService {
         expectedBuffer.length !== providedBuffer.length ||
         !crypto.timingSafeEqual(expectedBuffer, providedBuffer)
       ) {
-        throw new Error('Webhook authentication failed: invalid signature');
+        throw new Error('WEBHOOK_INVALID');
       }
     }
 
@@ -236,8 +235,7 @@ export class VideoProcessingService {
       const statusResult = await this.provider.getJobStatus(providerJobId);
       await this.updateJobFromProviderStatus(job.id, statusResult);
     } catch (error) {
-      console.error(`Webhook reconciliation failed for job ${job.id}:`, error);
-      throw error;
+      throw new Error('PROCESSING_FAILED');
     }
   }
 }

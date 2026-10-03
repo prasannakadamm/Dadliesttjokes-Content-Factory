@@ -68,9 +68,6 @@ export class OpenShortsProvider implements VideoProcessorProvider {
       });
 
       if (!response.ok) {
-        console.error(
-          `[OpenShortsProvider] submitJob error: ${response.status} ${response.statusText}`,
-        );
         throw new VideoProcessorError(
           'Video processing is temporarily unavailable.',
           'PROVIDER_ERROR',
@@ -89,7 +86,6 @@ export class OpenShortsProvider implements VideoProcessorProvider {
       };
     } catch (error) {
       if (error instanceof VideoProcessorError) throw error;
-      console.error(`[OpenShortsProvider] submitJob failed`);
       throw new VideoProcessorError('Failed to submit job', 'PROVIDER_ERROR');
     }
   }
@@ -105,9 +101,6 @@ export class OpenShortsProvider implements VideoProcessorProvider {
       });
 
       if (!response.ok) {
-        console.error(
-          `[OpenShortsProvider] getJobStatus error: ${response.status} ${response.statusText}`,
-        );
         throw new VideoProcessorError(
           'Video processing is temporarily unavailable.',
           'PROVIDER_ERROR',
@@ -160,7 +153,6 @@ export class OpenShortsProvider implements VideoProcessorProvider {
       };
     } catch (error) {
       if (error instanceof VideoProcessorError) throw error;
-      console.error(`[OpenShortsProvider] getJobStatus failed`);
       throw new VideoProcessorError('Failed to get job status', 'PROVIDER_ERROR');
     }
   }
