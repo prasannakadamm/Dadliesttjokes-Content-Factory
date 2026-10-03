@@ -8,7 +8,7 @@
 
 - **Objective:** Integrate video generation logic through OpenShorts API and process webhook responses accurately. Implement state machine, uniqueness, safe DB transactions and dashboard displays.
 - **Starting Baseline:** Commit `314c5f5` (Phase 04 verified and locked baseline).
-- **Current Status:** READY FOR INDEPENDENT VERIFICATION — NOT YET VERIFIED/LOCKED
+- **Current Status:** READY_FOR_VERIFICATION
 - **Next Phase:** Phase 06 — Gemini Content Engine _(NOT STARTED)_
 
 ---
@@ -20,7 +20,7 @@
 - **Phase 02 — Development Foundation:** VERIFIED / LOCKED at `c48ccc5`
 - **Phase 03 — Database & Authentication:** VERIFIED / LOCKED at `900a8e9`
 - **Phase 04 — Web Dashboard:** VERIFIED / LOCKED at `314c5f5`
-- **Phase 05 — OpenShorts Integration:** READY FOR INDEPENDENT VERIFICATION — NOT YET VERIFIED/LOCKED
+- **Phase 05 — OpenShorts Integration:** READY_FOR_VERIFICATION
 
 ---
 
@@ -69,7 +69,7 @@ None
 | **Phase 02** | Development Foundation    | **VERIFIED / LOCKED** (c48ccc5)                              |
 | **Phase 03** | Database & Authentication | **VERIFIED / LOCKED** (900a8e9)                              |
 | **Phase 04** | Web Dashboard             | **VERIFIED / LOCKED** (314c5f5)                              |
-| **Phase 05** | OpenShorts Integration    | READY FOR INDEPENDENT VERIFICATION — NOT YET VERIFIED/LOCKED |
+| **Phase 05** | OpenShorts Integration    | READY_FOR_VERIFICATION                                       |
 | **Phase 06** | Gemini Content Engine     | Planned                                                      |
 | **Phase 07** | Quality Control           | Planned                                                      |
 | **Phase 08** | Social Publishing         | Planned                                                      |
