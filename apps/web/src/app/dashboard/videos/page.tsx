@@ -55,9 +55,9 @@ export default function VideosPage() {
   const pollJob = async (id: string) => {
     try {
       const data = await fetchApi<JobData>(`/video/jobs/${id}`);
-      
+
       setJobData(data);
-      
+
       if (data.status === 'queued' || data.status === 'processing') {
         setTimeout(() => pollJob(id), 5000); // poll every 5s
       }
@@ -109,12 +109,18 @@ export default function VideosPage() {
               <h2 className="text-lg font-medium text-white mb-1">Job Status</h2>
               <p className="text-sm text-muted break-all">{jobData.sourceUrl}</p>
             </div>
-            <span className={`px-3 py-1 rounded-full text-xs font-medium uppercase tracking-wider
-              ${jobData.status === 'completed' ? 'bg-green-500/10 text-green-500' :
-                jobData.status === 'failed' ? 'bg-red-500/10 text-red-500' :
-                jobData.status === 'canceled' ? 'bg-gray-500/10 text-gray-500' :
-                'bg-blue-500/10 text-blue-500'
-              }`}>
+            <span
+              className={`px-3 py-1 rounded-full text-xs font-medium uppercase tracking-wider
+              ${
+                jobData.status === 'completed'
+                  ? 'bg-green-500/10 text-green-500'
+                  : jobData.status === 'failed'
+                    ? 'bg-red-500/10 text-red-500'
+                    : jobData.status === 'canceled'
+                      ? 'bg-gray-500/10 text-gray-500'
+                      : 'bg-blue-500/10 text-blue-500'
+              }`}
+            >
               {jobData.status}
             </span>
           </div>
@@ -130,20 +136,36 @@ export default function VideosPage() {
               <h3 className="text-md font-medium text-white mb-4">Generated Clips</h3>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 {jobData.clips.map((clip, idx) => (
-                  <div key={clip.id} className="border border-border rounded-md overflow-hidden bg-background">
+                  <div
+                    key={clip.id}
+                    className="border border-border rounded-md overflow-hidden bg-background"
+                  >
                     {clip.thumbnailUrl ? (
-                      <img src={clip.thumbnailUrl} alt={clip.title || 'Clip thumbnail'} className="w-full h-32 object-cover" />
+                      <img
+                        src={clip.thumbnailUrl}
+                        alt={clip.title || 'Clip thumbnail'}
+                        className="w-full h-32 object-cover"
+                      />
                     ) : (
                       <div className="w-full h-32 bg-border/50 flex items-center justify-center">
                         <span className="text-muted text-sm">No Thumbnail</span>
                       </div>
                     )}
                     <div className="p-3 space-y-2">
-                      <p className="text-sm text-white font-medium line-clamp-2">{clip.title || `Clip ${idx + 1}`}</p>
+                      <p className="text-sm text-white font-medium line-clamp-2">
+                        {clip.title || `Clip ${idx + 1}`}
+                      </p>
                       <div className="flex justify-between items-center text-xs text-muted">
-                        <span>{clip.durationSeconds ? `${clip.durationSeconds}s` : 'Unknown duration'}</span>
+                        <span>
+                          {clip.durationSeconds ? `${clip.durationSeconds}s` : 'Unknown duration'}
+                        </span>
                         {clip.videoUrl && (
-                          <a href={clip.videoUrl} target="_blank" rel="noreferrer" className="text-white hover:underline">
+                          <a
+                            href={clip.videoUrl}
+                            target="_blank"
+                            rel="noreferrer"
+                            className="text-white hover:underline"
+                          >
                             View Video
                           </a>
                         )}

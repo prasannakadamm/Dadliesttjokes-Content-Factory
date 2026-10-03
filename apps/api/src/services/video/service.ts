@@ -3,7 +3,7 @@ import crypto from 'crypto';
 import type { AppDatabase } from '../../db/client.js';
 import { videoJobs, videoClips } from '../../db/schema/jobs.js';
 import { OpenShortsProvider } from './openshorts.js';
-import { VideoProcessorProvider, VideoProcessorError } from './provider.js';
+import { VideoProcessorProvider, VideoProcessorError, JobStatusResult } from './provider.js';
 
 export class VideoProcessingService {
   private readonly provider: VideoProcessorProvider;
@@ -22,12 +22,15 @@ export class VideoProcessingService {
     const webhookSecret = this.globalWebhookSecret || crypto.randomBytes(32).toString('hex');
 
     // 1. Create job in DB
-    const [job] = await this.db.insert(videoJobs).values({
-      userId,
-      sourceUrl,
-      status: 'queued',
-      webhookSecret,
-    }).returning();
+    const [job] = await this.db
+      .insert(videoJobs)
+      .values({
+        userId,
+        sourceUrl,
+        status: 'queued',
+        webhookSecret,
+      })
+      .returning();
 
     if (!job) {
       throw new Error('Failed to create job record in database');
@@ -42,7 +45,8 @@ export class VideoProcessingService {
       });
 
       // 3. Update job with provider ID
-      await this.db.update(videoJobs)
+      await this.db
+        .update(videoJobs)
         .set({
           providerJobId: result.providerJobId,
           updatedAt: new Date(),
@@ -52,14 +56,15 @@ export class VideoProcessingService {
       return job.id;
     } catch (error) {
       // Mark as failed if submission fails
-      await this.db.update(videoJobs)
+      await this.db
+        .update(videoJobs)
         .set({
           status: 'failed',
           errorDetails: error instanceof Error ? error.message : String(error),
           updatedAt: new Date(),
         })
         .where(eq(videoJobs.id, job.id));
-      
+
       throw error;
     }
   }
@@ -74,10 +79,7 @@ export class VideoProcessingService {
       return null;
     }
 
-    const clips = await this.db
-      .select()
-      .from(videoClips)
-      .where(eq(videoClips.jobId, jobId));
+    const clips = await this.db.select().from(videoClips).where(eq(videoClips.jobId, jobId));
 
     return { job, clips };
   }
@@ -116,7 +118,7 @@ export class VideoProcessingService {
     return this.getJob(jobId, userId);
   }
 
-  private async updateJobFromProviderStatus(jobId: string, statusResult: any) {
+  private async updateJobFromProviderStatus(jobId: string, statusResult: JobStatusResult) {
     const [job] = await this.db.select().from(videoJobs).where(eq(videoJobs.id, jobId));
     if (!job) return;
 
@@ -126,24 +128,31 @@ export class VideoProcessingService {
       processing: ['completed', 'failed', 'canceled'],
       completed: [],
       failed: [],
-      canceled: []
+      canceled: [],
     };
 
-    if (job.status !== statusResult.status && !validTransitions[job.status]?.includes(statusResult.status)) {
+    if (
+      job.status !== statusResult.status &&
+      !validTransitions[job.status]?.includes(statusResult.status)
+    ) {
       // Invalid transition, ignore to enforce centralized policy
       return;
     }
 
     const now = new Date();
-    const updateData: any = {
-      status: statusResult.status,
+    const updateData: Partial<typeof videoJobs.$inferInsert> = {
+      status: statusResult.status as 'queued' | 'processing' | 'completed' | 'failed' | 'canceled',
       updatedAt: now,
     };
 
     if (job.status !== statusResult.status) {
       if (statusResult.status === 'processing') {
         updateData.startedAt = now;
-      } else if (statusResult.status === 'completed' || statusResult.status === 'failed' || statusResult.status === 'canceled') {
+      } else if (
+        statusResult.status === 'completed' ||
+        statusResult.status === 'failed' ||
+        statusResult.status === 'canceled'
+      ) {
         updateData.completedAt = now;
         if (statusResult.error) {
           updateData.errorDetails = statusResult.error;
@@ -151,32 +160,41 @@ export class VideoProcessingService {
       }
     }
 
-    await this.db.transaction(async (tx: any) => {
+    await this.db.transaction(async (tx) => {
       // Only update if data changed
       if (Object.keys(updateData).length > 2 || updateData.status !== job.status) {
-        await tx.update(videoJobs)
-          .set(updateData)
-          .where(eq(videoJobs.id, jobId));
+        await tx.update(videoJobs).set(updateData).where(eq(videoJobs.id, jobId));
       }
 
-      if (statusResult.status === 'completed' && statusResult.clips && statusResult.clips.length > 0) {
+      if (
+        statusResult.status === 'completed' &&
+        statusResult.clips &&
+        statusResult.clips.length > 0
+      ) {
         for (const clip of statusResult.clips) {
-          await tx.insert(videoClips).values({
-            jobId,
-            providerClipId: clip.providerClipId,
-            title: clip.title,
-            durationSeconds: clip.durationSeconds,
-            videoUrl: clip.videoUrl,
-            thumbnailUrl: clip.thumbnailUrl,
-          }).onConflictDoNothing({ target: [videoClips.jobId, videoClips.providerClipId] });
+          await tx
+            .insert(videoClips)
+            .values({
+              jobId,
+              providerClipId: clip.providerClipId,
+              title: clip.title,
+              durationSeconds: clip.durationSeconds,
+              videoUrl: clip.videoUrl,
+              thumbnailUrl: clip.thumbnailUrl,
+            })
+            .onConflictDoNothing({ target: [videoClips.jobId, videoClips.providerClipId] });
         }
       }
     });
   }
 
-  async handleWebhook(payload: any, signature?: string, rawBody?: string): Promise<void> {
-    const providerJobId = payload.job_id || payload.id;
-    
+  async handleWebhook(
+    payload: Record<string, unknown>,
+    signature?: string,
+    rawBody?: string,
+  ): Promise<void> {
+    const providerJobId = (payload.job_id || payload.id) as string | undefined;
+
     if (!providerJobId) {
       throw new Error('Invalid webhook payload: missing job identifier');
     }
@@ -195,14 +213,21 @@ export class VideoProcessingService {
       if (!signature) {
         throw new Error('Webhook authentication failed: missing signature header');
       }
-      
+
       const bodyToHash = rawBody || JSON.stringify(payload);
-      const expectedSignature = crypto.createHmac('sha256', job.webhookSecret).update(bodyToHash).digest('hex');
-      
+      const hmacHex = crypto
+        .createHmac('sha256', job.webhookSecret)
+        .update(bodyToHash)
+        .digest('hex');
+      const expectedSignature = `sha256=${hmacHex}`;
+
       const expectedBuffer = Buffer.from(expectedSignature, 'utf8');
       const providedBuffer = Buffer.from(signature, 'utf8');
-      
-      if (expectedBuffer.length !== providedBuffer.length || !crypto.timingSafeEqual(expectedBuffer, providedBuffer)) {
+
+      if (
+        expectedBuffer.length !== providedBuffer.length ||
+        !crypto.timingSafeEqual(expectedBuffer, providedBuffer)
+      ) {
         throw new Error('Webhook authentication failed: invalid signature');
       }
     }

@@ -28,7 +28,10 @@ export interface VideoProcessorProvider {
 }
 
 export class VideoProcessorError extends Error {
-  constructor(message: string, public readonly details?: unknown) {
+  constructor(
+    message: string,
+    public readonly details?: unknown,
+  ) {
     super(message);
     this.name = 'VideoProcessorError';
   }

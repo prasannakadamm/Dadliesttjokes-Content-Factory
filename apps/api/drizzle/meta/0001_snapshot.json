@@ -72,9 +72,7 @@
         "users_email_unique": {
           "name": "users_email_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "email"
-          ]
+          "columns": ["email"]
         }
       },
       "policies": {},
@@ -170,12 +168,8 @@
           "name": "sessions_user_id_users_id_fk",
           "tableFrom": "sessions",
           "tableTo": "users",
-          "columnsFrom": [
-            "user_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["user_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -185,9 +179,7 @@
         "sessions_token_hash_unique": {
           "name": "sessions_token_hash_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "token_hash"
-          ]
+          "columns": ["token_hash"]
         }
       },
       "policies": {},
@@ -255,12 +247,8 @@
           "name": "video_clips_job_id_video_jobs_id_fk",
           "tableFrom": "video_clips",
           "tableTo": "video_jobs",
-          "columnsFrom": [
-            "job_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["job_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -360,12 +348,8 @@
           "name": "video_jobs_user_id_users_id_fk",
           "tableFrom": "video_jobs",
           "tableTo": "users",
-          "columnsFrom": [
-            "user_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["user_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -381,13 +365,7 @@
     "public.job_status": {
       "name": "job_status",
       "schema": "public",
-      "values": [
-        "queued",
-        "processing",
-        "completed",
-        "failed",
-        "canceled"
-      ]
+      "values": ["queued", "processing", "completed", "failed", "canceled"]
     }
   },
   "schemas": {},

@@ -21,7 +21,7 @@ export const videoRoutes: FastifyPluginAsync<VideoRoutesOptions> = async (fastif
     config.OPENSHORTS_API_KEY,
     config.OPENSHORTS_API_URL,
     config.OPENSHORTS_WEBHOOK_URL,
-    config.OPENSHORTS_WEBHOOK_SECRET
+    config.OPENSHORTS_WEBHOOK_SECRET,
   );
 
   fastify.post<{ Body: { sourceUrl: string } }>(
@@ -31,7 +31,10 @@ export const videoRoutes: FastifyPluginAsync<VideoRoutesOptions> = async (fastif
     },
     async (request, reply) => {
       if (!request.user) {
-        return reply.status(401).send({ success: false, error: { code: 'UNAUTHORIZED', message: 'User not authenticated' } });
+        return reply.status(401).send({
+          success: false,
+          error: { code: 'UNAUTHORIZED', message: 'User not authenticated' },
+        });
       }
 
       const parseResult = submitJobSchema.safeParse(request.body);
@@ -65,7 +68,7 @@ export const videoRoutes: FastifyPluginAsync<VideoRoutesOptions> = async (fastif
           },
         });
       }
-    }
+    },
   );
 
   fastify.get<{ Params: { jobId: string } }>(
@@ -75,7 +78,10 @@ export const videoRoutes: FastifyPluginAsync<VideoRoutesOptions> = async (fastif
     },
     async (request, reply) => {
       if (!request.user) {
-        return reply.status(401).send({ success: false, error: { code: 'UNAUTHORIZED', message: 'User not authenticated' } });
+        return reply.status(401).send({
+          success: false,
+          error: { code: 'UNAUTHORIZED', message: 'User not authenticated' },
+        });
       }
 
       const { jobId } = request.params;
@@ -83,7 +89,7 @@ export const videoRoutes: FastifyPluginAsync<VideoRoutesOptions> = async (fastif
       try {
         // First, attempt to get it from DB. If it's still processing, we sync it.
         const jobData = await videoService.syncJobStatus(jobId, request.user.id);
-        
+
         if (!jobData) {
           return reply.status(404).send({
             success: false,
@@ -102,7 +108,7 @@ export const videoRoutes: FastifyPluginAsync<VideoRoutesOptions> = async (fastif
             sourceUrl: jobData.job.sourceUrl,
             createdAt: jobData.job.createdAt,
             error: jobData.job.errorDetails,
-            clips: jobData.clips.map(c => ({
+            clips: jobData.clips.map((c) => ({
               id: c.id,
               title: c.title,
               durationSeconds: c.durationSeconds,
@@ -121,15 +127,20 @@ export const videoRoutes: FastifyPluginAsync<VideoRoutesOptions> = async (fastif
           },
         });
       }
-    }
+    },
   );
 
   fastify.post(
     '/webhook',
+    {
+      config: {
+        rawBody: true,
+      },
+    },
     async (request, reply) => {
-      const payload = request.body as any;
+      const payload = request.body as Record<string, unknown>;
       const signature = request.headers['x-openshorts-signature'] as string | undefined;
-      const rawBody = JSON.stringify(payload);
+      const rawBody = (request as unknown as { rawBody?: string }).rawBody as string;
 
       try {
         await videoService.handleWebhook(payload, signature, rawBody);
@@ -138,8 +149,10 @@ export const videoRoutes: FastifyPluginAsync<VideoRoutesOptions> = async (fastif
         request.log.error(error, 'Webhook handling failed');
         // Return 200 anyway so provider doesn't infinitely retry unless we want them to
         // For security, if it's not found we shouldn't leak that, but here we just return 400 for bad payloads
-        return reply.status(400).send({ success: false, error: { message: 'Webhook processing failed' }});
+        return reply
+          .status(400)
+          .send({ success: false, error: { message: 'Webhook processing failed' } });
       }
-    }
+    },
   );
 };

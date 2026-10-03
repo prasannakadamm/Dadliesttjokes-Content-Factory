@@ -4,6 +4,7 @@ import type { ApiEnv } from '@dadliesttjokes/config';
 import type { ApiErrorResponse } from '@dadliesttjokes/types';
 import { createDbClient, type DbClient } from './db/client.js';
 import { authPlugin } from './middleware/auth.js';
+import fastifyRawBody from 'fastify-raw-body';
 import { healthRoutes } from './routes/health.js';
 import { authRoutes } from './routes/auth.js';
 import { videoRoutes } from './routes/video.js';
@@ -44,6 +45,14 @@ export function buildApp(options: BuildAppOptions): FastifyInstance {
 
   // Initialize or attach database client
   const dbClient = options.dbClient || createDbClient(config.DATABASE_URL);
+
+  // Register Raw Body parser
+  app.register(fastifyRawBody, {
+    field: 'rawBody', // the raw body will be stored on request.rawBody
+    global: false, // only for routes that configure it
+    encoding: 'utf8', // set it to utf8 to get a string
+    runFirst: true, // run before the default body parsers
+  });
 
   // Register Auth Plugin (Cookie handling + authenticate decorators)
   app.register(authPlugin, {

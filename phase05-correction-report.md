@@ -1,9 +1,11 @@
 # Phase 05 Correction Report
 
 ## Objective
+
 Reconcile OpenShorts integration security, webhook signatures, idempotency, authorization, and dashboard validation.
 
 ## Changes Made
+
 1. **OpenShorts Provider (`openshorts.ts`)**:
    - Switched from `FormData` to `application/json` payload to adhere exactly to OpenShorts' official API contract (`POST /api/process`).
    - Configured robust error handling masking raw provider errors to safe, user-facing error messages.
@@ -18,5 +20,6 @@ Reconcile OpenShorts integration security, webhook signatures, idempotency, auth
    - Added exhaustive unit/integration tests covering the state machine, webhook authorization, and security sanitization. Test cases assert no sensitive provider details or raw stack traces leak to the client.
 
 ## Resulting Status
+
 Phase 05 is now **READY FOR INDEPENDENT VERIFICATION — NOT YET VERIFIED/LOCKED**.
 No subsequent phases (Phase 06 Gemini) have been initiated.

@@ -7,6 +7,31 @@ import {
   ProviderNotConfiguredError,
 } from './provider.js';
 
+interface OpenShortsProcessResponse {
+  job_id: string;
+}
+
+interface OpenShortsLog {
+  message: string;
+}
+
+interface OpenShortsClip {
+  id?: string;
+  index?: number;
+  title?: string;
+  duration?: number;
+  video_url?: string;
+  thumbnail_url?: string;
+}
+
+interface OpenShortsStatusResponse {
+  status: string;
+  logs?: OpenShortsLog[];
+  result?: {
+    clips?: OpenShortsClip[];
+  };
+}
+
 export class OpenShortsProvider implements VideoProcessorProvider {
   constructor(
     private readonly apiKey: string | undefined,
@@ -22,7 +47,7 @@ export class OpenShortsProvider implements VideoProcessorProvider {
   async submitJob(options: VideoProcessingJobOptions): Promise<VideoProcessingJobResult> {
     this.checkConfig();
     try {
-      const payload: Record<string, any> = {
+      const payload: Record<string, string | boolean> = {
         url: options.sourceUrl,
         acknowledged: true,
       };
@@ -32,27 +57,31 @@ export class OpenShortsProvider implements VideoProcessorProvider {
       if (options.webhookSecret) {
         payload.webhook_secret = options.webhookSecret;
       }
-      
+
       const response = await fetch(`${this.apiUrl}/api/process`, {
         method: 'POST',
         headers: {
-          'Authorization': `Bearer ${this.apiKey}`,
+          Authorization: `Bearer ${this.apiKey}`,
           'Content-Type': 'application/json',
         },
         body: JSON.stringify(payload),
       });
 
       if (!response.ok) {
-        const errorText = await response.text();
-        console.error(`[OpenShortsProvider] submitJob error: ${response.status} ${response.statusText} - ${errorText}`);
-        throw new VideoProcessorError('Video processing is temporarily unavailable.', 'PROVIDER_ERROR');
+        console.error(
+          `[OpenShortsProvider] submitJob error: ${response.status} ${response.statusText}`,
+        );
+        throw new VideoProcessorError(
+          'Video processing is temporarily unavailable.',
+          'PROVIDER_ERROR',
+        );
       }
 
-      const data = await response.json() as any;
-      
-      const providerJobId = data.job_id || data.id;
+      const data = (await response.json()) as OpenShortsProcessResponse;
+
+      const providerJobId = data.job_id;
       if (!providerJobId) {
-        throw new Error(`Failed to extract job ID from response: ${JSON.stringify(data)}`);
+        throw new VideoProcessorError('Failed to extract job ID from response', 'PROVIDER_ERROR');
       }
 
       return {
@@ -60,7 +89,7 @@ export class OpenShortsProvider implements VideoProcessorProvider {
       };
     } catch (error) {
       if (error instanceof VideoProcessorError) throw error;
-      console.error(`[OpenShortsProvider] submitJob failed:`, error);
+      console.error(`[OpenShortsProvider] submitJob failed`);
       throw new VideoProcessorError('Failed to submit job', 'PROVIDER_ERROR');
     }
   }
@@ -71,55 +100,67 @@ export class OpenShortsProvider implements VideoProcessorProvider {
       const response = await fetch(`${this.apiUrl}/api/status/${providerJobId}`, {
         method: 'GET',
         headers: {
-          'Authorization': `Bearer ${this.apiKey}`,
+          Authorization: `Bearer ${this.apiKey}`,
         },
       });
 
       if (!response.ok) {
-        const errorText = await response.text();
-        console.error(`[OpenShortsProvider] getJobStatus error: ${response.status} ${response.statusText} - ${errorText}`);
-        throw new VideoProcessorError('Video processing is temporarily unavailable.', 'PROVIDER_ERROR');
+        console.error(
+          `[OpenShortsProvider] getJobStatus error: ${response.status} ${response.statusText}`,
+        );
+        throw new VideoProcessorError(
+          'Video processing is temporarily unavailable.',
+          'PROVIDER_ERROR',
+        );
       }
 
-      const data = await response.json() as any;
-      
-      const status = typeof data.status === 'string' ? data.status.toLowerCase() : '';
-      let mappedStatus: JobStatusResult['status'] = 'queued';
-      
-      if (status === 'processing') {
+      const data = (await response.json()) as OpenShortsStatusResponse;
+
+      const status = data.status;
+      let mappedStatus: JobStatusResult['status'];
+
+      if (status === 'queued') {
+        mappedStatus = 'queued';
+      } else if (status === 'processing') {
         mappedStatus = 'processing';
-      } else if (status === 'completed' || status === 'done' || status === 'success') {
+      } else if (status === 'completed') {
         mappedStatus = 'completed';
-      } else if (status === 'failed' || status === 'error') {
+      } else if (status === 'failed') {
         mappedStatus = 'failed';
-      } else if (status === 'canceled' || status === 'cancelled') {
+      } else if (status === 'canceled') {
         mappedStatus = 'canceled';
+      } else {
+        throw new VideoProcessorError(`Unknown provider status: ${status}`, 'PROVIDER_ERROR');
       }
 
-      const clips = Array.isArray(data.clips) ? data.clips.map((clip: any, index: number) => {
-        // Deterministic ID fallback
-        let providerClipId = String(clip.id || clip.index || '');
-        if (!providerClipId) {
-          providerClipId = `clip_${providerJobId}_${index}`;
-        }
-        
-        return {
-          providerClipId,
-          title: clip.title,
-          durationSeconds: clip.duration ? Number(clip.duration) : undefined,
-          videoUrl: clip.video_url || clip.url,
-          thumbnailUrl: clip.thumbnail_url || clip.thumbnail,
-        };
-      }) : [];
+      const clips = Array.isArray(data.result?.clips)
+        ? data.result!.clips!.map((clip, index) => {
+            // Deterministic ID fallback
+            let providerClipId = clip.id;
+            if (!providerClipId) {
+              providerClipId =
+                typeof clip.index !== 'undefined'
+                  ? `clip_${providerJobId}_${clip.index}`
+                  : `clip_${providerJobId}_${index}`;
+            }
+
+            return {
+              providerClipId,
+              title: clip.title,
+              durationSeconds: clip.duration ? Number(clip.duration) : undefined,
+              videoUrl: clip.video_url,
+              thumbnailUrl: clip.thumbnail_url,
+            };
+          })
+        : [];
 
       return {
         status: mappedStatus,
         clips,
-        error: typeof data.error === 'string' ? data.error : undefined,
       };
     } catch (error) {
       if (error instanceof VideoProcessorError) throw error;
-      console.error(`[OpenShortsProvider] getJobStatus failed:`, error);
+      console.error(`[OpenShortsProvider] getJobStatus failed`);
       throw new VideoProcessorError('Failed to get job status', 'PROVIDER_ERROR');
     }
   }

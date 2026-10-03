@@ -13,12 +13,12 @@ describe('Video Processing API (Phase 05)', () => {
   let app: FastifyInstance;
   let testDb: DbClient;
   let user1Token: string;
-  let user1Id: string;
+
   let user2Token: string;
 
   beforeAll(async () => {
     testDb = createTestDb();
-    
+
     // Clear jobs
     await testDb.db.delete(videoClips);
     await testDb.db.delete(videoJobs);
@@ -32,18 +32,27 @@ describe('Video Processing API (Phase 05)', () => {
       OPENSHORTS_API_KEY: 'test-osk',
       OPENSHORTS_WEBHOOK_SECRET: 'test-webhook-secret',
     });
-    
+
     app = buildApp({ config, dbClient: testDb });
     await app.ready();
 
     // Register User 1
-    const reg1 = await app.inject({ method: 'POST', url: '/auth/register', payload: { email: 'user1@test.com', password: 'Password1!' } });
-    user1Id = JSON.parse(reg1.payload).data.user.id;
-    user1Token = reg1.cookies.find(c => c.name === 'session_token')?.value || '';
+    const reg1 = await app.inject({
+      method: 'POST',
+      url: '/auth/register',
+      payload: { email: 'user1@test.com', password: 'Password1!' },
+    });
+    // extract id just to ensure payload is valid
+    JSON.parse(reg1.payload).data.user.id;
+    user1Token = reg1.cookies.find((c) => c.name === 'session_token')?.value || '';
 
     // Register User 2
-    const reg2 = await app.inject({ method: 'POST', url: '/auth/register', payload: { email: 'user2@test.com', password: 'Password1!' } });
-    user2Token = reg2.cookies.find(c => c.name === 'session_token')?.value || '';
+    const reg2 = await app.inject({
+      method: 'POST',
+      url: '/auth/register',
+      payload: { email: 'user2@test.com', password: 'Password1!' },
+    });
+    user2Token = reg2.cookies.find((c) => c.name === 'session_token')?.value || '';
   });
 
   afterAll(async () => {
@@ -56,7 +65,11 @@ describe('Video Processing API (Phase 05)', () => {
 
   describe('Authorization and Security', () => {
     it('rejects unauthenticated job submission', async () => {
-      const res = await app.inject({ method: 'POST', url: '/video/jobs', payload: { sourceUrl: 'https://youtube.com/watch' } });
+      const res = await app.inject({
+        method: 'POST',
+        url: '/video/jobs',
+        payload: { sourceUrl: 'https://youtube.com/watch' },
+      });
       expect(res.statusCode).toBe(401);
     });
 
@@ -103,9 +116,13 @@ describe('Video Processing API (Phase 05)', () => {
 
     it('rejects cross-user job access', async () => {
       // First user 1 creates a job
-      vi.mocked(fetch).mockResolvedValueOnce({ ok: true, json: () => Promise.resolve({ job_id: 'provider_456' }) } as Response);
+      vi.mocked(fetch).mockResolvedValueOnce({
+        ok: true,
+        json: () => Promise.resolve({ job_id: 'provider_456' }),
+      } as Response);
       const createRes = await app.inject({
-        method: 'POST', url: '/video/jobs',
+        method: 'POST',
+        url: '/video/jobs',
         cookies: { session_token: user1Token },
         payload: { sourceUrl: 'https://youtube.com/watch' },
       });
@@ -113,7 +130,8 @@ describe('Video Processing API (Phase 05)', () => {
 
       // User 2 tries to read it
       const readRes = await app.inject({
-        method: 'GET', url: `/video/jobs/${jobId}`,
+        method: 'GET',
+        url: `/video/jobs/${jobId}`,
         cookies: { session_token: user2Token },
       });
       expect(readRes.statusCode).toBe(404);
@@ -122,39 +140,46 @@ describe('Video Processing API (Phase 05)', () => {
 
   describe('Webhook and Idempotency', () => {
     it('authenticates webhook via HMAC SHA256 and updates job', async () => {
-      vi.mocked(fetch).mockResolvedValueOnce({ ok: true, json: () => Promise.resolve({ job_id: 'provider_789' }) } as Response);
+      vi.mocked(fetch).mockResolvedValueOnce({
+        ok: true,
+        json: () => Promise.resolve({ job_id: 'provider_789' }),
+      } as Response);
       const createRes = await app.inject({
-        method: 'POST', url: '/video/jobs',
+        method: 'POST',
+        url: '/video/jobs',
         cookies: { session_token: user1Token },
         payload: { sourceUrl: 'https://youtube.com/watch' },
       });
       const jobId = JSON.parse(createRes.payload).data.jobId;
 
       const [job] = await testDb.db.select().from(videoJobs).where(eq(videoJobs.id, jobId));
-      const secret = job.webhookSecret!;
-
-      const webhookPayload = { job_id: 'provider_789' };
-      const rawBody = JSON.stringify(webhookPayload);
-      const signature = crypto.createHmac('sha256', secret).update(rawBody).digest('hex');
+      const secret = job!.webhookSecret!;
+      const rawBody = '{\n  "job_id": "provider_789"\n}'; // Custom raw body formatting
+      const signature = `sha256=${crypto.createHmac('sha256', secret).update(rawBody).digest('hex')}`;
 
       // Mock getJobStatus response in the service
       vi.mocked(fetch).mockResolvedValueOnce({
         ok: true,
-        json: () => Promise.resolve({
-          status: 'completed',
-          clips: [{ id: 'clip_1', title: 'Test Clip', video_url: 'https://vid.com' }]
-        }),
+        json: () =>
+          Promise.resolve({
+            status: 'completed',
+            result: {
+              clips: [{ id: 'clip_1', title: 'Test Clip', video_url: 'https://vid.com' }],
+            },
+          }),
       } as Response);
 
       const hookRes = await app.inject({
-        method: 'POST', url: '/video/webhook',
+        method: 'POST',
+        url: '/video/webhook',
         headers: { 'x-openshorts-signature': signature, 'content-type': 'application/json' },
-        payload: webhookPayload,
+        body: rawBody,
       });
       expect(hookRes.statusCode).toBe(200);
 
       const readRes = await app.inject({
-        method: 'GET', url: `/video/jobs/${jobId}`,
+        method: 'GET',
+        url: `/video/jobs/${jobId}`,
         cookies: { session_token: user1Token },
       });
       const readBody = JSON.parse(readRes.payload);
@@ -164,9 +189,43 @@ describe('Video Processing API (Phase 05)', () => {
 
     it('rejects invalid webhook signatures', async () => {
       const hookRes = await app.inject({
-        method: 'POST', url: '/video/webhook',
-        headers: { 'x-openshorts-signature': 'invalid_signature', 'content-type': 'application/json' },
+        method: 'POST',
+        url: '/video/webhook',
+        headers: {
+          'x-openshorts-signature': 'sha256=invalid_signature',
+          'content-type': 'application/json',
+        },
         payload: { job_id: 'provider_789' },
+      });
+      expect(hookRes.statusCode).toBe(400);
+    });
+
+    it('rejects reformatted body with valid original signature', async () => {
+      vi.mocked(fetch).mockResolvedValueOnce({
+        ok: true,
+        json: () => Promise.resolve({ job_id: 'provider_999' }),
+      } as Response);
+      const createRes = await app.inject({
+        method: 'POST',
+        url: '/video/jobs',
+        cookies: { session_token: user1Token },
+        payload: { sourceUrl: 'https://youtube.com/watch' },
+      });
+      const jobId = JSON.parse(createRes.payload).data.jobId;
+
+      const [job] = await testDb.db.select().from(videoJobs).where(eq(videoJobs.id, jobId));
+      const secret = job!.webhookSecret!;
+
+      const rawBody = '{"job_id":"provider_999"}';
+      const signature = `sha256=${crypto.createHmac('sha256', secret).update(rawBody).digest('hex')}`;
+
+      // Reformat the body to simulate mismatch
+      const reformattedBody = '{\n  "job_id": "provider_999"\n}';
+      const hookRes = await app.inject({
+        method: 'POST',
+        url: '/video/webhook',
+        headers: { 'x-openshorts-signature': signature, 'content-type': 'application/json' },
+        body: reformattedBody, // send the reformatted body with the signature of the non-reformatted body
       });
       expect(hookRes.statusCode).toBe(400);
     });
