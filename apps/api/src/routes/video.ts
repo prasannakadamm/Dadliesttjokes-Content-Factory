@@ -61,7 +61,7 @@ export const videoRoutes: FastifyPluginAsync<VideoRoutesOptions> = async (fastif
           success: false,
           error: {
             code: 'PROVIDER_ERROR',
-            message: error instanceof Error ? error.message : 'Unknown provider error',
+            message: 'Video processing is temporarily unavailable.',
           },
         });
       }
@@ -127,11 +127,12 @@ export const videoRoutes: FastifyPluginAsync<VideoRoutesOptions> = async (fastif
   fastify.post(
     '/webhook',
     async (request, reply) => {
-      // The webhook comes from OpenShorts
-      const payload = request.body;
+      const payload = request.body as any;
+      const signature = request.headers['x-openshorts-signature'] as string | undefined;
+      const rawBody = JSON.stringify(payload);
 
       try {
-        await videoService.handleWebhook(payload);
+        await videoService.handleWebhook(payload, signature, rawBody);
         return reply.status(200).send({ success: true });
       } catch (error) {
         request.log.error(error, 'Webhook handling failed');

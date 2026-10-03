@@ -48,6 +48,35 @@ export function createTestDb(): DbClient {
     CREATE INDEX "sessions_user_id_idx" ON "sessions" ("user_id");
     CREATE INDEX "sessions_token_hash_idx" ON "sessions" ("token_hash");
     CREATE INDEX "sessions_expires_at_idx" ON "sessions" ("expires_at");
+
+    CREATE TYPE job_status AS ENUM ('queued', 'processing', 'completed', 'failed', 'canceled');
+
+    CREATE TABLE "video_jobs" (
+      "id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
+      "user_id" uuid NOT NULL REFERENCES "users"("id") ON DELETE CASCADE,
+      "provider" varchar(64) DEFAULT 'openshorts' NOT NULL,
+      "provider_job_id" varchar(128) UNIQUE,
+      "source_url" text NOT NULL,
+      "status" job_status DEFAULT 'queued' NOT NULL,
+      "error_details" text,
+      "webhook_secret" varchar(64),
+      "created_at" timestamp with time zone DEFAULT now(),
+      "updated_at" timestamp with time zone DEFAULT now(),
+      "started_at" timestamp with time zone,
+      "completed_at" timestamp with time zone
+    );
+
+    CREATE TABLE "video_clips" (
+      "id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
+      "job_id" uuid NOT NULL REFERENCES "video_jobs"("id") ON DELETE CASCADE,
+      "provider_clip_id" varchar(128) NOT NULL,
+      "title" text,
+      "duration_seconds" integer,
+      "video_url" text,
+      "thumbnail_url" text,
+      "created_at" timestamp with time zone DEFAULT now(),
+      UNIQUE("job_id", "provider_clip_id")
+    );
   `);
 
   const db = drizzle(pool as unknown as Pool, { schema }) as AppDatabase;

@@ -22,21 +22,24 @@ export class OpenShortsProvider implements VideoProcessorProvider {
   async submitJob(options: VideoProcessingJobOptions): Promise<VideoProcessingJobResult> {
     this.checkConfig();
     try {
-      const formData = new FormData();
-      formData.append('url', options.sourceUrl);
+      const payload: Record<string, any> = {
+        url: options.sourceUrl,
+        acknowledged: true,
+      };
       if (options.webhookUrl) {
-        formData.append('webhook_url', options.webhookUrl);
+        payload.webhook_url = options.webhookUrl;
       }
       if (options.webhookSecret) {
-        formData.append('webhook_secret', options.webhookSecret);
+        payload.webhook_secret = options.webhookSecret;
       }
       
       const response = await fetch(`${this.apiUrl}/api/process`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${this.apiKey}`,
+          'Content-Type': 'application/json',
         },
-        body: formData,
+        body: JSON.stringify(payload),
       });
 
       if (!response.ok) {

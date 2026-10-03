@@ -89,7 +89,7 @@ export class VideoProcessingService {
       .where(and(eq(videoJobs.id, jobId), eq(videoJobs.userId, userId)));
 
     if (!job) {
-      throw new Error('Job not found');
+      return null;
     }
 
     if (!job.providerJobId) {
@@ -174,7 +174,7 @@ export class VideoProcessingService {
     });
   }
 
-  async handleWebhook(payload: any): Promise<void> {
+  async handleWebhook(payload: any, signature?: string, rawBody?: string): Promise<void> {
     const providerJobId = payload.job_id || payload.id;
     
     if (!providerJobId) {
@@ -192,15 +192,18 @@ export class VideoProcessingService {
 
     // Verify secret if provided by provider
     if (job.webhookSecret) {
-      if (!payload.webhook_secret || typeof payload.webhook_secret !== 'string') {
-        throw new Error('Webhook authentication failed: missing secret in payload');
+      if (!signature) {
+        throw new Error('Webhook authentication failed: missing signature header');
       }
       
-      const expectedBuffer = Buffer.from(job.webhookSecret, 'utf8');
-      const providedBuffer = Buffer.from(payload.webhook_secret, 'utf8');
+      const bodyToHash = rawBody || JSON.stringify(payload);
+      const expectedSignature = crypto.createHmac('sha256', job.webhookSecret).update(bodyToHash).digest('hex');
+      
+      const expectedBuffer = Buffer.from(expectedSignature, 'utf8');
+      const providedBuffer = Buffer.from(signature, 'utf8');
       
       if (expectedBuffer.length !== providedBuffer.length || !crypto.timingSafeEqual(expectedBuffer, providedBuffer)) {
-        throw new Error('Webhook authentication failed: invalid secret');
+        throw new Error('Webhook authentication failed: invalid signature');
       }
     }
 
